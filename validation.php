@@ -45,7 +45,7 @@ if($rcode==$decode)
 		$message = sprintf($main_smarty->get_config_vars('KLIQQI_Validation_Message'),$login_url);
 		$main_smarty->assign('message', $message);
 
-		$sql="UPDATE " . table_users . " SET user_email = '".mysql_real_escape_string($_GET['email'])."' WHERE user_login='$username'";
+		$sql="UPDATE " . table_users . " SET user_email = '".mysqli_real_escape_string($db, $_GET['email'])."' WHERE user_login='$username'";
 		if(!$db->query($sql))
 			$main_smarty->assign('error', $main_smarty->get_config_vars('KLIQQI_Validation_Mysql_Error'));
 	}
@@ -55,7 +55,7 @@ if($rcode==$decode)
 else
 	$main_smarty->assign('error', $main_smarty->get_config_vars('KLIQQI_Validation_Invalid_Code'));
 
-define('pagename', 'validation'); 
+define('pagename', 'validation');
 $main_smarty->assign('pagename', pagename);
 
 do_sidebar($main_smarty);
