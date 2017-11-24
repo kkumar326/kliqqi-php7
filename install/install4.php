@@ -1,8 +1,8 @@
 <?php
-if (!$step) { 
-	header('Location: ./install.php'); die(); 
+if (!$step) {
+	header('Location: ./install.php'); die();
 } else if(@$_SESSION['checked_step'] != 3){
-	header('Location: ./install.php'); die(); 
+	header('Location: ./install.php'); die();
 }
 
 if ($_POST['language'])
@@ -84,8 +84,8 @@ li{marging-left:30px;}
 a:link, a:hover, a:visited, a:active{color:#000000}
 .btn-primary, btn {margin-left:10px}
 input[type=text] {
-    padding:5px; 
-    border:2px solid #ccc; 
+    padding:5px;
+    border:2px solid #ccc;
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
@@ -95,8 +95,8 @@ input[type=text]:focus {
 }
 
 input[type=submit] {
-    padding:5px 15px; 
-    background:#2D6CE0; 
+    padding:5px 15px;
+    background:#2D6CE0;
     border:2px solid #fff;
     cursor:pointer;
     -webkit-border-radius: 5px;
@@ -117,17 +117,17 @@ elseif (!is_writable($file)) { $errors[]="$file " . $lang['NotEditable'] ; }
 
 define("mnminclude", dirname(__FILE__).'/../libs/');
 include_once mnminclude.'db.php';
-		
+
 if (!$errors) {
 	$dbuser = EZSQL_DB_USER;
 	$dbpass = EZSQL_DB_PASSWORD;
 	$dbname = EZSQL_DB_NAME;
 	$dbhost = EZSQL_DB_HOST;
 
-	if($conn = @mysql_connect($dbhost,$dbuser,$dbpass))
+	if($conn = @mysqli_connect($dbhost,$dbuser,$dbpass))
 	 {
-		$db_selected = mysql_select_db($dbname, $conn);
-		if (!$db_selected) { die ('Error: '.$dbname.' : '.mysql_error()); }
+		$db_selected = mysqli_select_db($conn, $dbname);
+		if (!$db_selected) { die ('Error: '.$dbname.' : '.mysqli_error()); }
 		define('table_prefix', $_POST['tableprefix']);
 
 		include_once '../libs/define_tables.php';
@@ -146,7 +146,7 @@ if (!$errors) {
 	// refresh / recreate settings
 	// this is needed to update it with table_prefix if it has been changed from "kliqqi_"
 	include_once( '../libs/admin_config.php' );
-	
+
 	$config = new kliqqiconfig;
 	$config->create_file('../settings.php');
 
@@ -154,21 +154,21 @@ if (!$errors) {
 	$my_kliqqi_base=dirname($_SERVER["PHP_SELF"]); $my_kliqqi_base=str_replace("/".substr(strrchr($my_kliqqi_base, '/'), 1),'',$my_kliqqi_base);
 
 	$sql = "Update " . table_config . " set `var_value` = '" . $my_base_url . "' where `var_name` = '" . '$my_base_url' . "';";
-	mysql_query( $sql, $conn );
+	mysqli_query( $conn, $sql );
 
 	$sql = "Update " . table_config . " set `var_value` = '" . $my_kliqqi_base . "' where `var_name` = '" . '$my_kliqqi_base' . "';";
-	mysql_query( $sql, $conn );
-	
+	mysqli_query( $conn, $sql );
+
 	// Set the site language to what the user has been using during the installation
 	$language = addslashes(strip_tags($_REQUEST['language']));
 	$sql = "Update " . table_config . " set `var_value` = '" . $language . "' where `var_name` = '" . '$language' . "';";
-	mysql_query( $sql, $conn );
+	mysqli_query( $conn, $sql );
 
 	$config = new kliqqiconfig;
 	$config->create_file('../settings.php');
 
 	include_once( '../config.php' );
-	
+
 	// Remove the cookie setting a template value
 	setcookie("template", "", time()-60000,$my_kliqqi_base,$domain);
 
@@ -179,32 +179,32 @@ if (!$errors) {
 				<td><label>' . $lang['AdminLogin'] . '</label></td>
 				<td><input name="adminlogin" type="text" class="form-control" value="" placeholder="Admin" /></td>
 			</tr>
-			
+
 			<tr>
 				<td><label>' . $lang['AdminPassword'] . '</label></td>
 				<td><input name="adminpassword" type="password" class="form-control" value="" /></td>
 			</tr>
-			
+
 			<tr>
 				<td><label>' . $lang['ConfirmPassword'] . '</label></td>
 				<td><input name="adminpassword2" type="password" class="form-control" value="" /></td>
 			</tr>
-			
+
 			<tr>
 				<td><label>' . $lang['AdminEmail'] . '</label></td>
 				<td><input name="adminemail" type="text" class="form-control" value="" placeholder="admin@domain.com" /></td>
 			</tr>
-			
+
 			<tr>
 				<td><label>' . $lang['SiteTitleLabel'] . '</label></td>
 				<td><input name="sitetitle" type="text" class="form-control" value="" placeholder="My Site" /></td>
 			</tr>
-			
+
 			<tr>
 				<td><label></label></td>
 				<td><input type="submit" class="btn btn-primary" name="Submit" value="' . $lang['CreateAdmin'] . '" /></td>
 			</tr>
-			
+
 			<input type="hidden" name="language" value="' . addslashes(strip_tags($_REQUEST['language'])) . '">
 			<input type="hidden" name="step" value="5">
 		</form>
@@ -213,7 +213,7 @@ if (!$errors) {
 	';
 }
 
-	mysql_query( $sql, $conn );
+	mysqli_query( $conn, $sql );
 if (isset($errors)) {
 	$output=DisplayErrors($errors);
 	$output.='<p>' . $lang['Errors'] . '</p>';

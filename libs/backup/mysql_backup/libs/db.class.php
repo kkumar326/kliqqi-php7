@@ -3,8 +3,8 @@
 
 /**
  * db class : Database abstraction class
- * 
- * @package 
+ *
+ * @package
  * @author Ben Yacoub Hatem <hatem@php.net>
  * @copyright Copyright (c) 2004
  * @version $Id$ - 06/05/2004 14:31:03 - db.class.php
@@ -16,9 +16,9 @@ class db2{
      * @access protected
      */
 	function db(){
-		
+
 	}
-	
+
 	var $hostName = ""; //Name of server
 	var $hostport = "";	//Server port
 	var $dbName = ""; //Name of databse
@@ -35,17 +35,17 @@ class db2{
 		"DEFAULT","DESC","DISTINCT","DOUBLE","ELSEIF","EXISTS","FALSE","FLOAT","FOREIGN","FROM","GROUP","HOUR_MICROSECOND","IF","INDEX","INNODB","INSERT","INTERVAL","IS","KEY","LEADING","LIKE",
 		"LOAD","LOCK","LONGTEXT","MASTER_SERVER_ID","MEDIUMINT","MINUTE_MICROSECOND","NATURAL","NULL","OPTIMIZE","OR","OUTER","PRIMARY","PURGE","REFERENCES","REPEAT","RESTRICT","RIGHT","SELECT","SET","SOME","SPECIFIC",
 		"SQLSTATE","SQL_CALC_FOUND_ROWS","SQL_TSI_FRAC_SECOND","SQL_TSI_MONTH","SQL_TSI_WEEK","STARTING","TABLE","THEN","TINYBLOB","TO","UNDO","UNLOCK","USAGE","USING","UTC_TIMESTAMP","VARCHAR","WHEN","WITH","YEAR_MONTH");
-	
-		
+
+
 	/**
 	 * db::dbconnect()		Just connect to DB
-	 * 
+	 *
 	 * @param string $hostName
 	 * @param string $dbUser
 	 * @param string $dbPwd
 	 * @param string $dbName
 	 * @param string $port
-	 * @return 
+	 * @return
 	 **/
 	function dbconnect($hostName="", $dbUser="", $dbPwd="",$dbName="", $port="", $dbType=""){
 		global $GonxAdmin;
@@ -67,24 +67,23 @@ class db2{
 		if ($dbType!="") {
 		    $this->dbType = $dbType;
 		}
-		
+
 		switch($this->dbType){
-			case "mysql": 
-				$this->Link_ID = @mysql_connect($this->hostName, $this->dbUser, $this->dbPwd) or die (_CONNECTION_ERROR_);
-				@mysql_select_db($this->dbName) or die (_CONNECTION_ERROR_.$this->error()."<br><br>");
+			case "mysql":
+				$this->Link_ID = @mysqli_connect($this->hostName, $this->dbUser, $this->dbPwd, $this->dbName) or die (_CONNECTION_ERROR_);
 			break;
-			
-		    case "postgresql": 
+
+		    case "postgresql":
 				$this->Link_ID = @pg_connect("host=".$this->hostName." dbname=".$this->dbName." port=".$this->db_port." user=".$this->dbUser." password=".$this->dbPwd);
 			break;
-		
+
 			case "oracle":
-				$this->Link_ID = @OCILogon($this->dbUser, $this->dbPwd, $this->dbName); 
+				$this->Link_ID = @OCILogon($this->dbUser, $this->dbPwd, $this->dbName);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				$this->Link_ID = @mssql_connect($this->hostName, $this->dbUser, $this->dbPwd) or die (_CONNECTION_ERROR_);
 				@mssql_select_db($this->dbName) or die (_CONNECTION_ERROR_.$this->error()."<br><br>");
@@ -95,8 +94,8 @@ class db2{
 
 	/**
 	 * db::disconnect()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function disconnect()
 	{
@@ -104,129 +103,129 @@ class db2{
 		switch($this->dbType)
 		{
 			case "mysql":
-				@mysql_close($this->Link_ID);
+				@mysqli_close($this->Link_ID);
 			break;
-			
+
 			case "postgresql":
 				@pg_close($this->Link_ID);
 			break;
-			
+
 			case "mssql":
 				@mssql_close($this->Link_ID);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "oracle":
 				@OCILogoff($this->Link_ID);
 			break;
 		}
 	}
-	
+
 	/**
 	 * db::query()		Query alias
-	 * 
+	 *
 	 * @param $query
-	 * @return 
+	 * @return
 	 **/
 	function query($query){
 		global $GonxAdmin;
-		
+
 		switch($this->dbType){
-			case "mysql": 
-				$this->dbQryResult = @mysql_query($query) or die (_QUERY_ERROR_.mysql_error()."<br><br>");
+			case "mysql":
+				$this->dbQryResult = @mysqli_query($this->Link_ID, $query) or die (_QUERY_ERROR_.mysqli_error()."<br><br>");
 			break;
-			
-		    case "postgresql": 
+
+		    case "postgresql":
 				$this->dbQryResult = @pg_query($this->Link_ID,$query) or die (_QUERY_ERROR_.pg_last_error()."<br><br>");
 			break;
-		
+
 			case "oracle":
-				$this->dbQryResult  =  @OCIParse($this->Link_ID,  $query); 
+				$this->dbQryResult  =  @OCIParse($this->Link_ID,  $query);
 				@OCIExecute($this->dbQryResult);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				$this->dbQryResult = @mssql_query($query) or die (_QUERY_ERROR_);
 			break;
 		} // switch
 		return $this->dbQryResult;
 	}
-	
+
 	/**
 	 * db::free_results()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function free_results()
 	{
 		global $GonxAdmin;
-		
+
 		switch($this->dbType)
 		{
 			case "mysql":
-				return mysql_free_result ($this->dbQryResult);
+				return mysqli_free_result ($this->dbQryResult);
 			break;
-			
+
 			case "postgresql":
 				return pg_freeresult($this->dbQryResult);
 			break;
-			
+
 			case "oracle":
 				return OCIRowCount($this->Link_ID);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				return mssql_free_result ($this->dbQryResult);
 			break;
 		}
 	}
-	
+
 	/**
 	 * db::fetch_row()		Alias to {DB}_fetch_row()
-	 * 
+	 *
 	 * @param string $result
-	 * @return 
+	 * @return
 	 **/
 	function fetch_row($result = "")
 	{
 		global $GonxAdmin;
 		switch($this->dbType){
-			case "mysql": 
-				$this->dbResultLine = @mysql_fetch_row($result);
+			case "mysql":
+				$this->dbResultLine = @mysqli_fetch_row($result);
 			break;
-			
-		    case "postgresql": 
+
+		    case "postgresql":
 				$this->dbResultLine = @pg_fetch_row($result,0);
 			break;
-		
+
 			case "oracle":
 					$this->dbResultLine = @ocifetch($result);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				$this->dbResultLine = @mssql_fetch_row($result);
 			break;
 		} // switch
-		
+
 		return $this->dbResultLine;
 	}
-	
+
 	/**
 	 * db::get_data()		Alias to {DB}_fetch_row
-	 * 
+	 *
 	 * @param string $result
-	 * @return 
+	 * @return
 	 **/
 	function get_data($result = "")
 	{
@@ -234,43 +233,43 @@ class db2{
 		    return $this->fetch_row($result);
 		} else return $this->fetch_row($this->dbQryResult);
 	}
-	
+
 	/**
 	 * db::fetch_array()		Alias to {DB}_fetch_array()
-	 * 
+	 *
 	 * @param string $result
-	 * @return 
+	 * @return
 	 **/
 	function fetch_array($result = "")
 	{
 		global $GonxAdmin;
 		switch($this->dbType){
-			case "mysql": 
-				$this->dbResultLine = @mysql_fetch_array($result);
+			case "mysql":
+				$this->dbResultLine = @mysqli_fetch_array($result);
 			break;
-			
-		    case "postgresql": 
+
+		    case "postgresql":
 				$this->dbResultLine = @pg_fetch_array($result,$this->_currentRow,$this->fetchMode);
 			break;
-		
+
 			case "oracle":
 				$this->dbResultLine = @oci_fetch_array($result);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				$this->dbResultLine = @mssql_fetch_array($result);
 			break;
 		} // switch
 		return $this->dbResultLine;
 	}
-	
+
 	/**
 	 * db::num_rows()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function num_rows()
 	{
@@ -278,69 +277,69 @@ class db2{
 		switch($this->dbType)
 		{
 			case "mysql":
-				return @mysql_num_rows($this->dbQryResult);
+				return @mysqli_num_rows($this->dbQryResult);
 			break;
-			
+
 			case "postgresql":
 				return @pg_num_rows($this->dbQryResult);
 			break;
-			
+
 			case "oracle":
 				return @ociNumCols($this->dbQryResult);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				return @mssql_num_rows($this->dbQryResult);
 			break;
 		}
 	}
-	
+
 	/**
 	 * db::list_tables()
-	 * 
+	 *
 	 * @param $dbname
-	 * @return 
+	 * @return
 	 **/
 	function list_tables($dbname){
 		global $GonxAdmin;
 		switch($this->dbType){
-			case "mysql": 
-				$this->dbResultLine = @mysql_query("SHOW TABLES FROM $dbname");
+			case "mysql":
+				$this->dbResultLine = @mysqli_query($this->Link_ID, "SHOW TABLES FROM $dbname");
 			break;
-			
-		    case "postgresql": 
-				$sql = "SELECT relname FROM pg_class WHERE relname !~ '^pg_'"; 
-				$this->dbResultLine = $this->query($sql); 
+
+		    case "postgresql":
+				$sql = "SELECT relname FROM pg_class WHERE relname !~ '^pg_'";
+				$this->dbResultLine = $this->query($sql);
 			break;
-		
+
 			case "oracle":
 				$sql = "select * from user_objects where object_type = 'TABLE';";
-				$this->dbResultLine = $this->query($sql); 
+				$this->dbResultLine = $this->query($sql);
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				$this->dbResultLine = @msql_list_tables($dbname);
 			break;
 		} // switch
 		return $this->dbResultLine;
 	}
-	
-	
+
+
 	/**
 	 * method get_db_tables : return list of tables
-	 * 
+	 *
 	 * @access public
-	 * @return void 
+	 * @return void
 	 **/
 	function get_db_tables(){
 		global $GonxAdmin;
-		
+
 		$result = @$this->list_tables($this->dbName);
 		if (!$result) {
 		    print "Erreur : impossible de lister les tables\n";
@@ -350,48 +349,48 @@ class db2{
 	    while ($row = $this->fetch_row($result)) {
 			$Tables[] = $row[0];
 	    }
-		return $Tables;		
+		return $Tables;
 	}
-	
+
 	/**
 	 * db::list_dbs()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function list_dbs(){
 		global $GonxAdmin;
 		switch($this->dbType){
-			case "mysql": 
-				$this->dbResultLine = @mysql_list_dbs($this->Link_ID);
+			case "mysql":
+				$this->dbResultLine = @mysqli_query($this->Link_ID, "SHOW DATABASES");
 			break;
-			
-		    case "postgresql": 
+
+		    case "postgresql":
 				$sql = 'SELECT datname FROM pg_database';
-				$this->dbResultLine = $this->query($sql); 
+				$this->dbResultLine = $this->query($sql);
 			break;
-		
+
 			case "oracle":
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 
 			break;
 		} // switch
 		return $this->dbResultLine;
 	}
-	
-	
+
+
 	/**
 	 * db::get_db_tables()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function get_dbs(){
 		global $GonxAdmin;
-		
+
 		$result = $this->list_dbs();
 	    if (!$result) {
 	        print "Erreur : impossible de lister les bases de donn&eacute;es\n";
@@ -401,68 +400,68 @@ class db2{
 	    while ($row = $this->fetch_row($result)) {
 			$DBS[] = $row[0];
 	    }
-		return $DBS;		
+		return $DBS;
 	}
 
 	/**
 	 * db::error()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function error(){
 		global $GonxAdmin;
 		switch($this->dbType){
-			case "mysql": 
-				return @mysql_error();
+			case "mysql":
+				return @mysqli_error();
 			break;
-			
+
 		    case "postgresql":
 				return @pg_last_error();
 			break;
-		
+
 			case "oracle":
 			break;
-			
+
 			case "sqlite":
 			break;
-			
+
 			case "mssql":
 				return @mssql_get_last_message();
 			break;
 		} // switch
 	}
-	
+
 	/**
 	 * db::escape_string()
-	 * 
+	 *
 	 * @param string $string
-	 * @return 
+	 * @return
 	 **/
 	function escape_string($string = ""){
 		global $GonxAdmin;
 		switch($this->dbType){
-			case "mysql": 
-				return mysql_escape_string($string);
+			case "mysql":
+				return mysqli_real_escape_string($this->Link_ID, $string);
 			break;
-			
-		    case "postgresql": 
+
+		    case "postgresql":
 				return pg_escape_string($string);
 			break;
-		
+
 			case "oracle":
 			break;
-			
+
 			case "sqlite":
 			break;
 		} // switch
 	}
-	
-	
+
+
 	/**
 	 * db::valid_table_name()
-	 * 
+	 *
 	 * @param $tbl_name
-	 * @return 
+	 * @return
 	 **/
 	function valid_table_name($tbl_name){
 		if (in_array(strtoupper($tbl_name), $this->reserved_words)) {
@@ -470,11 +469,11 @@ class db2{
 		}
 		return TRUE;
 	}
-	
+
 	/**
 	 * db::signature()		Return MySQL Server signature
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function signature(){
 		global $GonxAdmin;
@@ -491,16 +490,16 @@ class db2{
 			list($n,$queries) = $this->fetch_array($qres);
 			$qres = $this->query($q1);
 			list($n,$version) = $this->fetch_array($qres);
-			
+
 			$qpersecond = number_format(($queries/$uptime), 4 );
 			$uptime = (integer)($uptime/(60 * 60 * 24));
-			
+
 			$Message = "\n<br/><br/>MySQL Version <b>$version</b>, Uptime = <b>$uptime day(s)</b> and running <b>$queries queries</b> (<b>$qpersecond q/s</b>)<br/>\n";
 			return $Message;
 		}
 	}
-	
-	
+
+
 }
 
 ?>
