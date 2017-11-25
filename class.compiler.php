@@ -76,7 +76,7 @@ class Template_Lite_Compiler extends Template_Lite {
     var $_obj_call_regexp       =   null;
 	var $_templatelite_vars		=	array();
 
-	function Template_Lite_compiler()
+	function __construct()
 	{
 		// matches double quoted strings:
 		// "foobar"
@@ -160,7 +160,7 @@ class Template_Lite_Compiler extends Template_Lite {
                 . '(?:\s*,\s*' . $this->_obj_single_param_regexp . ')*)?\)';
         $this->_obj_start_regexp = '(?:' . $this->_dvar_regexp . '(?:' . $this->_obj_ext_regexp . ')+)';
         $this->_obj_call_regexp = '(?:' . $this->_obj_start_regexp . '(?:' . $this->_obj_params_regexp . ')?(?:' . $this->_dvar_math_regexp . '(?:' . $this->_num_const_regexp . '|' . $this->_dvar_math_var_regexp . ')*)?)';
-        
+
         // matches valid modifier syntax:
         // |foo
         // |@foo
@@ -248,7 +248,7 @@ class Template_Lite_Compiler extends Template_Lite {
 		***/
 		//$file_contents = preg_replace("!{$ldq}\*.*?\*{$rdq}!se","",$file_contents);
 		/* Redwine: Substituting preg_replace with preg_replace_callback */
-		
+
 		$file_contents =  preg_replace_callback("/{$ldq}\*.*?\*{$rdq}/is",
         function($m) {
 			return '';
@@ -803,7 +803,7 @@ class Template_Lite_Compiler extends Template_Lite {
 			//   just get everything from the $ to the ending space and parse it
 			// if the $ is escaped, then we won't expand it
 			$_result = "";
-			preg_match_all('/(?:' . $this->_dvar_regexp . ')/', substr($variable, 1, -1), $_expand);  // old match 
+			preg_match_all('/(?:' . $this->_dvar_regexp . ')/', substr($variable, 1, -1), $_expand);  // old match
 //			preg_match_all('/(?:[^\\\]' . $this->_dvar_regexp . '[^\\\])/', $variable, $_expand);
 
 			$_expand = array_unique($_expand[0]);

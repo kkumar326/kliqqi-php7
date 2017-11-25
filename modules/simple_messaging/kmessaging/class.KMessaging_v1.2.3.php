@@ -7,7 +7,7 @@
 // | Used to simulate an internal mail for any syte                       |
 // +----------------------------------------------------------------------+
 // |                                                                      |
-// | Copyright (C) 2005 João Pereira, joaopedro17@netvisao.pt Portugal    |
+// | Copyright (C) 2005 Joï¿½o Pereira, joaopedro17@netvisao.pt Portugal    |
 // |                                                                      |
 // | This program is free software; you can redistribute it and/or        |
 // | modify it under the terms of the GNU General Public License          |
@@ -24,7 +24,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA            |
 // | 02111-1307, USA.                                                     |
 // |                                                                      |
-// | Author: João Pereira, joaopedro17@netvisao.pt Portugal               |
+// | Author: Joï¿½o Pereira, joaopedro17@netvisao.pt Portugal               |
 // |                                                                      |
 // +----------------------------------------------------------------------+
 //
@@ -33,11 +33,11 @@
 // New Version 1.2 so structural bugs have been arranjed
 // 1.2.1 -- Author: AshDigg from the Pligg Team
 //		added $id = $idMsg to GetAllmessages() and GetMessage() arrays
-// 1.2.2 -- Author: AshDigg from the Pligg Team 
+// 1.2.2 -- Author: AshDigg from the Pligg Team
 //		renamed $order to $sort
 //		fixed bug with GetAllmessages() switch on $sort -- missing break; so it always used the last item
 //		added sort by date asc / desc
-// 1.2.3 -- Author: AshDigg from the Pligg Team 
+// 1.2.3 -- Author: AshDigg from the Pligg Team
 //		added $filter to GetAllmessages()
 
 
@@ -103,8 +103,8 @@ var $DBHost = EZSQL_DB_HOST;
 	 *	@return Int 3	If the database cannot be selected When connection to the Database done outside of the class
 	 *	@return Int 4	If Conection var is not correct
 	*/
-	function KMessaging($connect = false,$selectDB = false,$con = '')
-	{		
+	function __construct($connect = false,$selectDB = false,$con = '')
+	{
 		global $con;
 		if($connect)
 		{
@@ -114,9 +114,9 @@ var $DBHost = EZSQL_DB_HOST;
 				exit();
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	* @return Int 0		Message sent succesfully
 	* @return Int 1		No title
@@ -151,7 +151,7 @@ var $DBHost = EZSQL_DB_HOST;
 		$result = $con->query($sql);
 		if($result)
 			return 0;
-		else 	
+		else
 			return 6;
 	}
 	/**
@@ -172,7 +172,7 @@ var $DBHost = EZSQL_DB_HOST;
 		$row = $result->fetch_object();
 		return $row->title;
 	}
-	
+
 	/**
 	* @return int 1		When msgId equal to 0
 	* @return int 2		When no Message in database with that msgId
@@ -271,7 +271,7 @@ var $DBHost = EZSQL_DB_HOST;
 		$message['date'] = $row->date;
 		return $message;
 	}
-	
+
 	/**
 	* @return Int 0		Marked Read succesfully
 	* @return Int 1		When msgId equal to 0
@@ -287,15 +287,15 @@ var $DBHost = EZSQL_DB_HOST;
 		$result = $con->query("UPDATE ".$this->tblName." SET readed=readed|1 WHERE idMsg=$msgId");
 		if($result)
 			return 0;
-		else 
+		else
 			return 2;
 	}
-	
+
 	/**
 	* @return Int 1			Error while gathering info on database
 	* @return Int 2			No messages with this settings
 	* @return Array			Returns one array with all messages
-	* 
+	*
 	* @param Int $order		Can take values from 0 to 5(0-> Order By senderLevel Ascendent,
 	*													1-> Order By senderLevel Descendent,
 	*													2-> Order By read message Ascendent,
@@ -313,7 +313,7 @@ var $DBHost = EZSQL_DB_HOST;
 	*/
 	function GetAllmessages($sort = 0, $receiver = '', $sender = '', $filter = 0)
 	{
-	global $con;	
+	global $con;
 		switch( $sort )
 		{
 			case 0:
@@ -342,22 +342,22 @@ var $DBHost = EZSQL_DB_HOST;
 			case 0:
 				break;
 			case 1:
-				$where = ' AND readed&1 = 0 ';			
+				$where = ' AND readed&1 = 0 ';
 				break;
 			case 2:
-				$where = ' AND readed&1 = 1 ';			
+				$where = ' AND readed&1 = 1 ';
 				break;
 		}
 
 		if(strlen($receiver) > 0 && strlen($sender) > 0)
 			$where = ' AND ';
-		
+
 		$where = ((strlen($receiver) > 0)?'readed&4=0 AND receiver=' . $receiver:'') . $where . ((strlen($sender) > 0)?'readed&2=0 AND sender=' . $sender:'');
-		
+
 		$sql = "SELECT * FROM ".$this->tblName." WHERE $where ORDER BY $order";
 		//echo $sql;
 		$result = $con->query($sql);
-		
+
 		if( !$result )
 			return 1;
 		$num = $result->num_rows;
@@ -371,14 +371,14 @@ var $DBHost = EZSQL_DB_HOST;
 			$message[$i]['title'] = $row->title;
 			$message[$i]['body'] = $row->body;
 			$message[$i]['senderLevel'] = $row->senderLevel;
-			$message[$i]['readed'] = $row->readed&1;	
+			$message[$i]['readed'] = $row->readed&1;
 			$message[$i]['date'] = $row->date;
 		}
 		if( !is_array($message) )
 			return 2;
 		return $message;
-			
-		
+
+
 	}
 
 
@@ -405,10 +405,10 @@ var $DBHost = EZSQL_DB_HOST;
 		    $result = $con->query("DELETE FROM ".$this->tblName." WHERE idMsg=$msgId");
 		if($result)
 			return 0;
-		else 
+		else
 			return 2;
 	}
 
-	
+
 }
 ?>

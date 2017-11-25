@@ -93,7 +93,7 @@ class Template_Lite {
 	var $_sections = array();
 	var $_foreach = array();
 
-	function Template_Lite()
+	function __construct()
 	{
 		$this->_tpl_vars = &$this->_vars;
 		$this->_version_date = strtotime($this->_version_date);
@@ -668,7 +668,7 @@ class Template_Lite {
 		return template_fetch_compile_include($_templatelite_include_file, $_templatelite_include_vars, $this);
 	}
 
-	function _generate_file_name($file) 
+	function _generate_file_name($file)
 	{
 		return ($this->encode_file_name) ? md5((($this->_resource_type == 1) ? $this->template_dir.$file : $this->_resource_type . "_" . $file)).'.php' : str_replace(".", "_", str_replace("/", "_", $this->_resource_type . "_" . $file)).'.php';
 	}
