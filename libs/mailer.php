@@ -29,7 +29,7 @@ class KliqqiMailer{
 	var $from = '';
 	var $to = '';
 
-	function KliqqiMailer($subj = '', $body = '', $from = '', $to = '', $cc = '', $bcc = ''){
+	function __construct($subj = '', $body = '', $from = '', $to = '', $cc = '', $bcc = ''){
 
 		if($subj != ''){$this->subject = $subj;}
 		if($body != ''){$this->body = $body;}
@@ -37,10 +37,10 @@ class KliqqiMailer{
 
 		if(isset($to) && !is_array($to)){$to[] = $to;}
 		$this->to = $to;
-			
+
 		if(isset($cc) && $cc != '' && !is_array($cc)){$cc[] = $cc;}
 		$this->cc = $cc;
-		
+
 		if(isset($bcc) && $bcc != '' &&  !is_array($bcc)){$bcc[] = $bcc;}
 		$this->bcc = $bcc;
 

@@ -19,7 +19,7 @@ class Link {
 	var $status = 'discard';
 	var $type = '';
 	var $category = 0;
-	var $additional_cats = array();	
+	var $additional_cats = array();
 	var $votes = 0;
 	var $comments = 0;
 	var $reports = 0;
@@ -109,9 +109,9 @@ class Link {
 			$this->url_title=trim($matches[1]);
 			}
 		}
-		/* Redwine: enhanced the preg_match patern to match any quotes, single or double. Also some sites have the meta content attribute preceding the name attribute. 
+		/* Redwine: enhanced the preg_match patern to match any quotes, single or double. Also some sites have the meta content attribute preceding the name attribute.
 		We are also grabbing the Facebook and Twitter opengraph to make sure we find the needed meta. */
-		
+
 		/* finding the image of the article to be used when submitting a story on Kliqqi. */
 		if(preg_match("'<meta\s+(name|property)=[\"\'](og:image|twitter:image|twitter:image:src)[\"\']\s+content=[\"\']([^<]*?)[\"\'](?:\s+itemprop=[\"\'][^<]*?[\"\'])?\s{0,}\/?\s{0,}>'si", $this->html, $matches)) {
 			$this->og_twitter_image=$matches[3];
@@ -126,7 +126,7 @@ class Link {
 		}elseif(preg_match("'<meta\s+content=[\"\']([^<]*?)[\"\']\s+(name|property)=[\"\'](og:image|twitter:image|twitter:image:src)[\"\']\s+(?:itemprop=[\"\'][^<]*?[\"\'])?\s{0,}\/?\s{0,}>'si", $this->html, $matches)) {
 			$this->og_twitter_image=$matches[1];
 		}
-		
+
 		/* finding the description of the article to be used when submitting a story on Kliqqi. */
 		if(preg_match("'<meta\s+name=[\"\']description[\"\']\s+content=[\"\']([^<]*?)[\"\']\s{0,}\/?\s{0,}>'si", $this->html, $matches)) {
 			$this->url_description=$matches[1];
@@ -142,17 +142,17 @@ class Link {
 			// Fall back on the first <p> tag content
 			/* Redwine: If the meta description was not found, then we global main_smarty to pull the settings of Story_Content_Tags_To_Allow to use to filter for the allowed hml tags, used below. */
 			global $main_smarty;
-			/***** 
+			/*****
 				Redwine: we match the first <p> element and if is found, then we need the Story_Content_Tags_To_Allow to use in case html tags are allowed and defined. Example:
-				
+
 				submitting https://www.cheatography.com/davechild/cheat-sheets/regular-expressions/ will populate this in the textarea:
 				<p class="subdesc">A quick reference guide for regular expressions (regex), including symbols, ranges, grouping, assertions and some sample patterns to get you started.</p>
-				
+
 				Now assuming we have allowed these tags in the dashboard: <strong><br><font><img><p>
 				then when we use the code on line 129 the textarea content will be filtered to this:
-				
+
 				<p class="subdesc">A quick reference guide for regular expressions (regex), including symbols, ranges, grouping, assertions and some sample patterns to get you started.</p>
-				
+
 				Notice that the <a> and <b> were filtered out.
 			*****/
 			/* Redwine the original had just <p> to match. I changed it to also match the p tag with its attributes if any. */
@@ -171,7 +171,7 @@ class Link {
 				$this->url_description=$paragraph;
 			}
 		}
-		
+
 		// Detect trackbacks
 		if (isset($_POST['trackback']) && sanitize($_POST['trackback'], 3) != '') {
 			$this->trackback=trim(sanitize($_POST['trackback'], 3));
@@ -239,7 +239,7 @@ class Link {
 		if($this->debug == true){echo '<hr>Store:'. $sql . '<hr>';}
 		//echo "query".$sql;
 		$db->query($sql);
-		
+
 		$pos = strrpos($_SERVER["SCRIPT_NAME"], "/");
 		$script_name = substr($_SERVER["SCRIPT_NAME"], $pos + 1, 100);
 		$script_name = str_replace(".php", "", $script_name);
@@ -268,13 +268,13 @@ class Link {
 		$link_group_id = $this->link_group_id;
 
 		$vars = array('link' => $this);
-		check_actions('link_store_basic_pre_sql', $vars);		
-		
+		check_actions('link_store_basic_pre_sql', $vars);
+
 
 		if($this->id===0) {
-/* Redwine: Fixed the negative votes to discard a story as per Admin Panel -> Settings -> Voting -> Negative votes to remove submission. See https://github.com/Pligg/pligg-cms/commit/d05ccab49c8efbc7b0ba69b2ad6e96056652296b */		
+/* Redwine: Fixed the negative votes to discard a story as per Admin Panel -> Settings -> Voting -> Negative votes to remove submission. See https://github.com/Pligg/pligg-cms/commit/d05ccab49c8efbc7b0ba69b2ad6e96056652296b */
 			$sql = "INSERT IGNORE INTO " . table_links . " (link_author, link_status, link_randkey, link_category, link_date, link_published_date, link_votes, link_karma, link_title, link_content ,link_group_id) VALUES ($link_author, '$link_status', $link_randkey, $link_category, FROM_UNIXTIME($link_date), FROM_UNIXTIME($link_published_date), $link_votes, $link_karma, '', '',$link_group_id)";
-				
+
 			if($this->debug == true){
 				echo '<hr>store_basic:Insert:' . $sql . '<hr>';
 			}
@@ -293,9 +293,9 @@ class Link {
 
 		foreach ($this->additional_cats as $cat)
 		    $db->query("INSERT INTO ".table_additional_categories." SET ac_cat_id='".sanitize($cat,3)."', ac_link_id={$this->id}");
-			
+
 		$vars = array('link' => $this);
-		check_actions('link_store_basic_post_sql', $vars);		
+		check_actions('link_store_basic_post_sql', $vars);
 
 	}
 
@@ -307,14 +307,14 @@ class Link {
 		// check to see if the link is cached
 		// if it is, use it
 		// if not, get from mysql and save to cache
-		
+
 		if (isset($cached_links[$id]) && $usecache == TRUE) {
 			$link = $cached_links[$id];
 		} else {
 			$link = $db->get_row("SELECT " . table_links . ".* FROM " . table_links . " WHERE link_id = $id");
 			$cached_links[$id] = $link;
 		}
-    
+
 		if($link) {
 			$this->author=$link->link_author;
 			$this->userid=$link->link_author;
@@ -326,19 +326,19 @@ class Link {
 			$this->randkey=$link->link_randkey;
 			$this->category=$link->link_category;
 			$this->url= $link->link_url;
-			$this->url= str_replace('&amp;', '&', $link->link_url);  
+			$this->url= str_replace('&amp;', '&', $link->link_url);
 			$this->url_title=$link->link_url_title;
 			//$this->url_description=$link->link_url_description;
 			$this->title=$link->link_title;
 			$this->title_url=$link->link_title_url;
 			$this->tags=$link->link_tags;
-			$this->content=$link->link_content; 
+			$this->content=$link->link_content;
 			/* Redwine: a value 0 or 1 will be returned from the script that checks whether the content is left-to-right or right-to-left language. This varibale will be passed to /templates/bootstrap/link_summary.tpl and used on line 214 to apply dir="rtl" when applicable. As per http://php.net/manual/en/regexp.reference.unicode.php and https://www.w3.org/International/questions/qa-scripts#which */
 			if (preg_match('/\p{Arabic}/u', $this->content) == 1 || preg_match('/\p{Hebrew}/u', $this->content) == 1 || preg_match('/\p{Nko}/u', $this->content) == 1 || preg_match('/\p{Syloti_Nagri}/u', $this->content) == 1 || preg_match('/\p{Thaana}/u', $this->content) == 1) {
 				$this->is_rtl = 1;
 			}else{
 				$this->is_rtl = 0;
-			} 		
+			}
 // DB 01/08/09
 			$this->date=strtotime($link->link_date);
 //			$date=$link->link_date;
@@ -374,7 +374,7 @@ class Link {
 			if ($results = $db->get_results("SELECT ac_cat_id FROM ".table_additional_categories." WHERE ac_link_id=$id", ARRAY_N))
 			    foreach ($results as $cat)
 			    	$this->additional_cats[] = $cat[0];
-			
+
 			return true;
 		}
 		$this->fullread = $this->read = false;
@@ -423,7 +423,7 @@ class Link {
 		$n = $db->get_var("SELECT count(*) FROM " . table_links . " WHERE link_url = '$link_url' AND link_status != 'discard'");
 		return $n;
 	}
-	
+
 	function duplicates_title($title) {
 		global $db;
 		$link_title=$db->escape($title);
@@ -431,7 +431,7 @@ class Link {
 		return $n;
 	}
 
-	
+
 	function print_summary($type='full', $fetch = false, $link_summary_template = 'link_summary.tpl') {
 		global $current_user, $globals, $the_template, $smarty, $ranklist, $db;
 
@@ -453,7 +453,7 @@ class Link {
 		$main_smarty->config_dir = "";
 		$main_smarty->assign('kliqqi_language', kliqqi_language);
 		$main_smarty->config_load(lang_loc . "/languages/lang_" . kliqqi_language . ".conf");
-		
+
         $anonymous_can_vote = $db->get_var('SELECT var_value from ' . table_config . ' where var_name = "anonymous_vote";');
         $main_smarty->assign('anonymous_vote', $anonymous_can_vote);
 
@@ -468,7 +468,7 @@ class Link {
 		$main_smarty->assign('the_template', The_Template);
 
 		include mnminclude.'extra_fields_smarty.php';
-	
+
 		if($fetch == false){
 			$main_smarty->display($the_template . '/' . $link_summary_template, 'story' . $this->id . "|" . $current_user->user_id . "|" . $type);
 		} else {
@@ -479,7 +479,7 @@ class Link {
 	function fill_smarty($smarty, $type='full'){
 
 		static $link_index=0;
-		
+
 		$link_index=$this->id;
 		global $current_user, $globals, $the_template, $db, $ranklist;
 
@@ -504,7 +504,7 @@ class Link {
 		if(!$this->read) return $smarty;
 
 		$url = str_replace('&amp;', '&', htmlspecialchars($this->url));
-		$url_short = txt_shorter($url);	
+		$url_short = txt_shorter($url);
 
 		if($this->url == "http://" || $this->url == ''){
 			$url_short = "http://";
@@ -517,7 +517,7 @@ class Link {
 		$smarty->assign('viewtype', $type);
 		$smarty->assign('URL_tagcloud', getmyurl("tagcloud"));
 		$smarty->assign('No_URL_Name', No_URL_Name);
-		if(track_outgoing == true && $url_short != "http://"){ 
+		if(track_outgoing == true && $url_short != "http://"){
 			if(track_outgoing_method == "id"){$smarty->assign('url', getmyurl("out", ($this->id)));}
 			if(track_outgoing_method == "title"){$smarty->assign('url', getmyurl("outtitle", urlencode($this->title_url)));}
 			if(track_outgoing_method == "url"){$smarty->assign('url', getmyurl("outurl", ($url)));}
@@ -558,7 +558,7 @@ class Link {
 		if($type == "full"){
 			$smarty->assign('story_content', $this->content);
 		}
-		
+
 		if($this->get_author_info == true){
 			$smarty->assign('link_submitter', $this->username());
 			$smarty->assign('submitter_profile_url', getmyurl('user', $this->username));
@@ -567,7 +567,7 @@ class Link {
 			}
 			$smarty->assign('user_extra_fields', $this->extra_field);
 		}
-		
+
 		$smarty->assign('link_submit_time', $this->date);
 		$smarty->assign('link_submit_timeago', txt_time_diff($this->date));
 		$smarty->assign('link_submit_date', date('F, d Y g:i A',$this->date));
@@ -605,18 +605,18 @@ class Link {
 
 			$current_user_id = $current_user->user_id;
 			$jsLink = "vote($current_user_id, $this->id, $link_index, '" . md5($current_user_id . $this->randkey) . "', ";
-			for ($stars = 1; $stars <= 5; $stars++) 
+			for ($stars = 1; $stars <= 5; $stars++)
 				$smarty->assign("link_shakebox_javascript_vote_{$stars}star", $jsLink . ($stars * 2) . ')' );
 
 			$smarty->assign('vote_count', $this->votecount);
-			
+
 			if($this->votes($current_user_id) > 0){
 				$smarty->assign('star_class', "-noh");
 			} else {
 				$smarty->assign('star_class', "");
 			}
 		}
-		$smarty->assign('get_group_membered', $this->get_group_membered()); 
+		$smarty->assign('get_group_membered', $this->get_group_membered());
 		if($this->status == "published"){$smarty->assign('category_url', getmyurl("maincategory", $catvar));}
 		if($this->status == "new"){$smarty->assign('category_url', getmyurl("newcategory", $catvar));}
 		if($this->status == "discard"){$smarty->assign('category_url', getmyurl("discardedcategory", $catvar));}
@@ -646,13 +646,13 @@ class Link {
 			$smarty->assign('link_field15', $this->link_field15);
 		}
 		$smarty->assign('link_group_id', $this->link_group_id);
-		$smarty->assign('instpath', my_base_url . my_kliqqi_base . "/");		
+		$smarty->assign('instpath', my_base_url . my_kliqqi_base . "/");
 		$smarty->assign('UseAvatars', do_we_use_avatars());
 		$smarty->assign('Avatar', $avatars = get_avatar('all', "", "", "", $this->userid));
 		$smarty->assign('Avatar_ImgSrc', $avatars['large']);
 		$smarty->assign('Avatar_ImgSrcs', $avatars['small']);
-/* Redwine: Roles and permissions and Groups fixes */	
-		// Get the Group creator/Admin/Moderator to use the assigned permissions, when $this->link_group_id is greater than 0 
+/* Redwine: Roles and permissions and Groups fixes */
+		// Get the Group creator/Admin/Moderator to use the assigned permissions, when $this->link_group_id is greater than 0
 		$is_gr_Creator = 0;
 		$is_gr_Admin = 0;
 		$is_gr_Moderator = 0;
@@ -689,15 +689,15 @@ class Link {
 				if($current_user->user_id > 0 && $current_user->user_login != $this->username()){
 					$friend_md5 = friend_MD5($current_user->user_login, $this->username());
 					$smarty->assign('FriendMD5', $friend_md5);
-		
+
 					$isfriend = $friend->get_friend_status($this->author);
 					if (!$isfriend)	{$friend_text = 'add to';	$friend_url = 'addfriend';}
 						else{$friend_text = 'remove from';	$friend_url = 'removefriend';}
-		
-					$smarty->assign('Friend_Text', $friend_text);				
+
+					$smarty->assign('Friend_Text', $friend_text);
 					$smarty->assign('user_add_remove', getmyurl('user', $this->username(), $friend_url));
 				}
-		
+
 				$smarty->assign('Allow_Friends', Allow_Friends);
 			// --- //
 		}
@@ -708,7 +708,7 @@ class Link {
 			check_actions('friends_activity_function', $vars);
 			if($vars['value'] == true){
 				$smarty->assign('friendvoted', 1);
-			}	
+			}
 		}*/
 		/*
 		//for friends voting activity
@@ -735,39 +735,39 @@ class Link {
 			}
 		}
 		$smarty->assign('user_url_saved', getmyurl('user2', $current_user->user_login, 'saved'));
-		
+
 		$smarty->assign('user_add_links_private', getmyurl('user_add_links_private', $this->id));
 		$smarty->assign('user_add_links_public', getmyurl('user_add_links_public', $this->id));
-		
+
 		$smarty->assign('group_story_links_publish', getmyurl('group_story_links_publish', $this->id));
 		$smarty->assign('group_story_links_new', getmyurl('group_story_links_new', $this->id));
 		$smarty->assign('group_story_links_discard', getmyurl('group_story_links_discard', $this->id));
-		$smarty->assign('link_id',$this->id);   
+		$smarty->assign('link_id',$this->id);
 		$smarty->assign('user_url_add_links', getmyurl('user_add_links', $this->id));
 		$smarty->assign('user_url_remove_links', getmyurl('user_remove_links', $this->id));
 		$smarty->assign('enable_tags', Enable_Tags);
 		$smarty->assign('link_shakebox_index', $link_index);
 		$smarty->assign('link_shakebox_votes', $this->votes);
 	    $smarty->assign('link_shakebox_showbury', $this->reports);
-		
-		
+
+
 		$this->get_current_user_votes($current_user->user_id);
 		if(votes_per_ip > 0){
 			$smarty->assign('vote_from_this_ip', $this->vote_from_this_ip);
 			$smarty->assign('report_from_this_ip', $this->report_from_this_ip);
 		}
-			
+
 		$smarty->assign('link_shakebox_currentuser_votes', $this->current_user_votes);
 		$smarty->assign('link_shakebox_currentuser_reports', $this->current_user_reports);
-         
-		 
+
+
 		if($this->reports == -1){
 			// reporting was added to the svn and some people started using it
 			// so in upgrade if someone already has the reports field, we set it to
 			// -1. Then when we read() we check if -1. if it still is, update the count
 			// from the votes table and store it into the link_reports field so we
 			// don't have to look at the votes table again.
-		
+
 			$this->reports = $this->count_all_votes("<0");
 			$this->store_basic();
 			$smarty->assign('link_shakebox_reports', $this->reports);
@@ -779,19 +779,19 @@ class Link {
 
 		$jsunvote = "unvote($current_user->user_id,$this->id,$link_index," . "'" . md5($current_user->user_id.$this->randkey) . "',10)";
 		$smarty->assign('link_shakebox_javascript_unvote', $jsunvote);
-		
+
 		$jsunbury = "unvote($current_user->user_id,$this->id,$link_index," . "'" . md5($current_user->user_id.$this->randkey) . "',-10)";
 		$smarty->assign('link_shakebox_javascript_unbury', $jsunbury);
-		
+
 		$smarty->assign('link_shakebox_javascript_report', $jsreportlink);
 		if(!defined('alltagtext')){
 			// for pages like index, this ->display was being called for each story
 			// which was sometimes 15+ times per page. this way it's just called once
 			$smarty->display('blank.tpl'); //this is just to load the lang file so we can pull from it in php
-			define('alltagtext', $smarty->get_config_vars('KLIQQI_Visual_Tags_All_Tags')); 			
+			define('alltagtext', $smarty->get_config_vars('KLIQQI_Visual_Tags_All_Tags'));
 		}
 		$alltagtext = alltagtext;
-	
+
 		if(Enable_Tags){
 			$smarty->assign('tags', $this->tags);
 			if (!empty($this->tags)) {
@@ -806,7 +806,7 @@ class Link {
  				for($i=0; $i<=$c; $i++)
  				{
  					if(isset($tag_array[$i])){
-						if ( $URLMethod == 1 ) { 
+						if ( $URLMethod == 1 ) {
 						    $tags_url_array[$i] = my_kliqqi_base . "/search.php?search=".urlencode(trim($tag_array[$i]))."&amp;tag=true";
 						} elseif ( $URLMethod == 2) {
 						    $tags_url_array[$i] = my_kliqqi_base . "/tag/" . urlencode(trim($tag_array[$i]));
@@ -829,7 +829,7 @@ class Link {
 		$smarty->assign('my_base_url', my_base_url);
 		$smarty->assign('my_kliqqi_base', my_kliqqi_base);
 		$smarty->assign('Default_Gravatar_Large', Default_Gravatar_Large);
-			
+
 		//$link_index++;
 		$vars['smarty'] = $smarty;
 		check_actions('lib_link_summary_fill_smarty', $vars);
@@ -876,10 +876,10 @@ class Link {
 				// echo $content;
 				return $content;
 			 }else{
-			 
+
 			 return close_tags(utf8_substr($this->content, 0, StorySummary_ContentTruncate)) . "...";
 			 }
-			 
+
 			 }
 		return $this->content;
 	}
@@ -970,16 +970,16 @@ class Link {
 
 	function get_current_user_votes($user) {
 		require_once(mnminclude.'votes.php');
-		
+
 		$vote = new Vote;
 		$vote->type='links';
 		$vote->user=$user;
 		$vote->link=$this->id;
 		$results = $vote->user_list_all_votes();
-		
+
 		$votes = 0;
 		$reports = 0;
-		
+
 		if(is_array($results)){
 			foreach ($results as $row){
 				if(isset($row->vote_value)){
@@ -988,27 +988,27 @@ class Link {
 			}
 		}
 		}
-				
+
 		$this->current_user_votes = $votes;
 		$this->current_user_reports = $reports;
-		
+
 		if(votes_per_ip > 0 && $user==0){
 		$ac_vote_from_IP=$this->votes_from_ip();
 		if($ac_vote_from_IP<=1)
 		 $ac_vote_from_IP=0;
-		
+
 		$ac_report_from_IP=$this->reports_from_ip();
 		if($ac_report_from_IP<=1)
 		$ac_report_from_IP=0;
-		 	
+
 		$this->vote_from_this_ip=$ac_vote_from_IP;
 		$this->report_from_this_ip=$ac_report_from_IP;
 		}
-		
+
 	}
 
 	function remove_vote($user=0, $value=10) {
-	
+
 		$vote = new Vote;
 		$vote->type='links';
 		$vote->user=$user;
@@ -1035,11 +1035,11 @@ class Link {
 				$this->reports = $this->count_all_votes("<0");
 			}
 			$this->store_basic();
-			
+
 			$vars = array('link' => $this);
 			check_actions('link_remove_vote_post', $vars);
 	}
-	
+
 	function insert_vote($user=0, $value=10) {
 		global $anon_karma;
 		require_once(mnminclude.'votes.php');
@@ -1053,7 +1053,7 @@ class Link {
 		if($user>0) {
 			require_once(mnminclude.'user.php');
 			$dbuser = new User($user);
-			if($dbuser->id>0) 
+			if($dbuser->id>0)
 				$vote->karma = $dbuser->karma;
 		} elseif (!anonymous_vote) {
 			return;
@@ -1081,18 +1081,18 @@ class Link {
 			}
 			$this->store_basic();
 			$this->check_should_publish();
-			
+
 			/* Redwine: fix to some bugs in the Karma system. This code was to update the user_karma with the value of "Voted on an article" when the auto vote is set to true upon story submission. It was causing double update of the user_karma upon voting. We provisioned a new code in /module/karma_main.php in the karma_do_submit3 function. https://github.com/Pligg/pligg-cms/commit/737770202d22ec938465fe66e52f2ae7cdcf5240 */
 			//$vars = array('vote' => $this);
-			//check_actions('link_insert_vote_post', $vars);		
-			
+			//check_actions('link_insert_vote_post', $vars);
+
 			return true;
 		}
 		return false;
 	}
 
 	function check_should_publish(){
-	
+
 		$votes = $this->category_votes();
 		// $votes must be explicitly cast to (int) to compare accurately
 		if (!is_numeric($votes))
@@ -1154,7 +1154,7 @@ class Link {
 
 		foreach($the_cats as $cat){
 			if($cat->category_id == $this->category)
-				return $cat->category_votes; 
+				return $cat->category_votes;
 		}
 
 		return $main_smarty->get_config_vars('KLIQQI_Visual_Submit3Errors_NoCategory');
@@ -1165,7 +1165,7 @@ class Link {
 
 		foreach($the_cats as $cat){
 			if($cat->category_id == $this->category)
-				return $cat->category_karma; 
+				return $cat->category_karma;
 		}
 
 		return $main_smarty->get_config_vars('KLIQQI_Visual_Submit3Errors_NoCategory');
@@ -1180,8 +1180,8 @@ class Link {
 		foreach($the_cats as $cat){
 			if($cat->category_id == $id)
 //			if($cat->category_id == $this->category && $cat->category_lang == $dblang)
-			{ 
-				return $cat->category_name; 
+			{
+				return $cat->category_name;
 			}
 		}
 
@@ -1196,8 +1196,8 @@ class Link {
 
 		foreach($the_cats as $cat){
 			if($cat->category_id == $id && $cat->category_lang == $dblang)
-			{ 
-				return $cat->category_safe_name; 
+			{
+				return $cat->category_safe_name;
 			}
 		}
 	}
@@ -1211,7 +1211,7 @@ class Link {
 		return join(',',$cats);
 	}
 
-	
+
 	function publish() {
 		if(!$this->read) $this->read_basic();
 		$this->published_date = time();
@@ -1233,18 +1233,18 @@ class Link {
 		$user = new User;
 		$user->id = $this->author;
 		$user->read();
-	  
+
 		$this->username = $user->username;
 		$this->userkarma = $user->karma;
 		$this->extra_field = $user->extra_field;
-	    
+
 		return $user->username;
 	}
 
 
 	function recalc_comments(){
 		global $db;
-		
+
 		// DB 08/04/08
 		if(!is_numeric($this->id)){return false;}
 		/////
@@ -1257,7 +1257,7 @@ class Link {
 	function comments() {
 		global $db;
 
-		if(summarize_mysql == 1){		
+		if(summarize_mysql == 1){
 			return $this->comments;
 		}else{
 		// DB 08/04/08
@@ -1270,7 +1270,7 @@ class Link {
 	function evaluate_formulas ()
 	{
 		global $db;
-/* Redwine: Fixed the negative votes to discard a story as per Admin Panel -> Settings -> Voting -> Negative votes to remove submission. See https://github.com/Pligg/pligg-cms/commit/d05ccab49c8efbc7b0ba69b2ad6e96056652296b */		
+/* Redwine: Fixed the negative votes to discard a story as per Admin Panel -> Settings -> Voting -> Negative votes to remove submission. See https://github.com/Pligg/pligg-cms/commit/d05ccab49c8efbc7b0ba69b2ad6e96056652296b */
 		if (buries_to_spam == 1) {
 			$res = $db->get_results("select * from " . table_formulas . " where type = 'report' and enabled = 1;");
 			if (!$res) return;
@@ -1296,17 +1296,17 @@ class Link {
 				}
 			}
 		}
-		
+
 	}
-	
+
 	function return_formula_system_version()
 	{
 		// 0.1 original
 		// 0.2 added hours_since_submit
-		
+
 		return 0.2;
 	}
-	
+
 	function adjust_comment($value)
 	{
 		$this->comments = $this->comments + $value;
@@ -1314,7 +1314,7 @@ class Link {
 
 	function verify_ownership($authorid){
 		global $db;
-		
+
 		// DB 09/03/08
 		if(!is_numeric($this->id)){return false;}
 		if(!is_numeric($authorid)){return false;}
@@ -1328,14 +1328,14 @@ class Link {
 	}
 
 	function get_internal_url(){
-		// returns the internal (comments page) url	
+		// returns the internal (comments page) url
 		if ($this->title_url == ""){
 			return getmyurl("story", $this->id);
 		} else {
 			return getmyurl("storyURL", $this->category_safe_names(), urlencode($this->title_url), $this->id);
 		}
 	}
-	
+
 	function check_spam($text )
 	{
 		global $MAIN_SPAM_RULESET;
@@ -1382,17 +1382,17 @@ class Link {
 			$expression = str_replace('.','\.',$expression);
 			// Check $text against http://<domain>
 			if (strlen($expression) > 0 && preg_match("/\/\/([^\.]+\.)*$expression(\/|$)/i", $text))
-			{ 
-				$this->logSpam( "$ruleFile violation: $expression"); 
-				return true; 
+			{
+				$this->logSpam( "$ruleFile violation: $expression");
+				return true;
 			}
 		}
 		fclose($handle);
 		return false;
 	}
 
-	
-	// log date, time, IP address and rule which triggered the spam	
+
+	// log date, time, IP address and rule which triggered the spam
 	function logSpam($message)
 	{
 		global $SPAM_LOG_BOOK;
@@ -1449,7 +1449,7 @@ class KliqqiHTTPRequest
    }
 
    // constructor
-   function KliqqiHTTPRequest($url)
+   function __construct($url)
    {
 		$this->_url = $url;
 		$this->_scan_url();

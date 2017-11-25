@@ -37,7 +37,7 @@ class mysql_backup
 
 	//---- Constructor function: This will Inisialize variables.
 	//----------------------------------------------------------
-	function mysql_backup($host,$db,$user,$pass,$output,$structure_only)
+	function __construct($host,$db,$user,$pass,$output,$structure_only)
 		{
 		set_time_limit (120);
 		$this->host = $host;

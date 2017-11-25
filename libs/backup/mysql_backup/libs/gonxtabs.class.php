@@ -2,8 +2,8 @@
 
 /**
  * gonxtabs class : Tabs Class Management.
- * 
- * @package 
+ *
+ * @package
  * @author Ben Yacoub Hatem <hatem@php.net>
  * @copyright Copyright (c) 2004
  * @version $Id$ - 04/03/2004 14:17:23 - tabs.class.php
@@ -14,13 +14,13 @@ class gonxtabs{
      * Constructor
      * @access protected
      */
-	function gonxtabs(){
+	function __construct(){
 
 	}
-	
+
 	/**
 	 * tabs::create() : Create tabs
-	 * 
+	 *
 	 * @param $menus	Array of tabs
 	 * @param $go		Selected tab
 	 * @return Tabs in HTML format
@@ -35,7 +35,7 @@ class gonxtabs{
 	<table cellSpacing=\"0\" cellPadding=\"0\" border=\"0\">
       <tr height=\"24\">
         <td>&nbsp;</td>\n";
-		
+
 		$mk = array_keys($menus);
 		$i = 1;
 		foreach($menus as $k=>$v){
@@ -54,7 +54,7 @@ class gonxtabs{
 			} else {
 			    $mx{$i} = "stab_muu_gif";
 			}
-				
+
 
 			// First Tab
 			if ($i==1) {
@@ -63,7 +63,7 @@ class gonxtabs{
 			} else {
 				$width = 14;
 			}
-			
+
 			if (preg_match('/^http:\/\//',$k)) {
 			    $lien = "$k";
 			} else {
@@ -73,7 +73,7 @@ class gonxtabs{
 			    $onclick = " onClick=\"window.close()\"";
 				$lien = "#";
 			} else $onclick ="";
-			
+
 			$result .="        <td vAlign=\"center\" noWrap background=\"image.php?img=".$m{$i}."\">
         <img src=\"image.php?img=".$mx{$i}."\" align=\"absMiddle\" width=\"$width\" height=\"24\"></td>
         <td vAlign=\"center\" noWrap background=\"image.php?img=".$m{$i}."\">
@@ -101,13 +101,13 @@ class gonxtabs{
 <!-- /GONX TABS -->\n\n";
 		return $result;
 	}
-	
+
 	/**
 	 * gonxtabs::block()	create a block of content
-	 * 
+	 *
 	 * @param string $content
 	 * @param string $tablewidth
-	 * @return 
+	 * @return
 	 **/
 	function block($content = "",$tablewidth="100%"){
 		global $locale;
@@ -126,7 +126,7 @@ $res =  "<br/>
     <td width='5' height='100%'><img src=\"image.php?img=bar_l_gif\" border=\"0\" height=\"100%\" width=\"5\" /></td>
     <td>
       <table cellpadding='2' cellspacing='3' border='0' width='100%' height='100%'>
-        <tr> 
+        <tr>
           <td$dir>\n$content\n</td>
         </tr>
       </table>
@@ -145,7 +145,7 @@ $res =  "<br/>
 <table cellpadding='0' cellspacing='0' border='0' bgColor ='white' width='$tablewidth' align=center>
   <tr>
     <td align=center><span class=blue>&nbsp;&nbsp;<font size=1>Author : Ben Yacoub Hatem - <a href=\"http://www.phptunisie.net/\" class=blue target=_blank>PHPTunisie.net</a><br>
-    Copyright ©  2004-2005</font></span>
+    Copyright ï¿½  2004-2005</font></span>
     </td>
   </tr>
 </table>
@@ -154,7 +154,7 @@ $res =  "<br/>
 </html>";
 		return $res;
 	}
-	
+
 }
 
 ?>

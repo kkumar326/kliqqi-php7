@@ -4,8 +4,8 @@ define ('_CONNECTION_ERROR_',"DB Connection error, please <a href=\"?option=data
 
 /**
  * backup class : Backup class
- * 
- * @package 
+ *
+ * @package
  * @author Ben Yacoub Hatem <hatem@php.net>
  * @website http://www.phptunisie.net/
  * @copyright Copyright (c) 2004
@@ -30,33 +30,33 @@ class backup extends db2{
      * Constructor
      * @access protected
      */
-	function backup(){
+	function __construct(){
 		global $GonxAdmin;
 		$this->compression = $GonxAdmin["compression_default"];
 	}
-	
+
 	/**
 	 * backup::version()	Return class version
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function version(){
 		return "1.0.8-PRE2";
 	}
 
-	
+
 	/**
 	 *
 	 * @access public
-	 * @return void 
+	 * @return void
 	 **/
 	function tables_menu(){
 		global $GONX;
-		
+
 		$color3 = $this->color3;
 		$color2 = $this->color2;
 		$color1 = $this->color1;
-		
+
 		$res = "\n<form action='?go=backuptables' method='post'>
 <table border=0 cellpadding=5>
 <tr bgcolor=\"$color1\">
@@ -89,7 +89,7 @@ class backup extends db2{
 			} else $bgcolor = $color3;
 			$i++;
 		}
-		
+
 		$res .= "</table>
 <input type='checkbox' name='structonly' value='Yes'> ".$GONX["structonly"]."<br><br>
 <input type='radio' name='chg' onclick='for(i=0;i<$i;i++){document.getElementById(\"tables\"+i).checked=true;}'> ".$GONX["checkall"]." &nbsp;&nbsp;
@@ -99,18 +99,18 @@ class backup extends db2{
 </form>\n";
 		return $res;
 	}
-	
+
 	/**
 	 *
 	 * @access public
-	 * @return void 
+	 * @return void
 	 **/
 	function tables_backup($tables,$structonly){
 		global $GONX;
 		foreach($tables as $v){
             $res = $this-> query("SHOW CREATE TABLE " . $this -> dbName . "." .$v);
             while ($resu[] = $this -> get_data()) {
-            } 
+            }
 		}
 
         foreach($resu as $key => $val) {
@@ -133,8 +133,8 @@ DROP TABLE IF EXISTS " . $val[0] . ";
                         if (!is_int($col_name)) {
                             $fields .= "`$col_name`,";
 							$values .= "'" . $this->escape_string($col_value) . "',";
-                        } 
-                    } 
+                        }
+                    }
 
                     $fields = substr($fields, 0, strlen($fields)-1);
                     $values = substr($values, 0, strlen($values)-1);
@@ -142,14 +142,14 @@ DROP TABLE IF EXISTS " . $val[0] . ";
                     $Dx_Create_Tables .= "\r\n<xquery>
 " . $myquery . "
 </xquery>\r\n" ;
-                } 
-				$this -> query("UNLOCK TABLES;");		    
+                }
+				$this -> query("UNLOCK TABLES;");
 		}
             } elseif (!$tbl_name_status){
 				$err_msg .= "<font color=red>".$GONX["ignoredtables"]." ".$val[0]." - ".$GONX["reservedwords"].".</font><br>\n";
 			}
-        } 
-		
+        }
+
 		if (!is_dir($this->backupdir)) {
 		    @mkdir($this->backupdir,0755);
 		}
@@ -166,8 +166,8 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 				bzwrite($fp, $Dx_Create_Tables);
 				bzclose($fp);
 			break;
-			
-		    case "zlib": 
+
+		    case "zlib":
 				// Random 5 characters to append to file names to prevent name guessing
 				$rand = substr(md5(microtime()),rand(0,26),5);
 				$fname = $this->dbName."_".date("Y-m-d H-i-s")."_".$rand.".gz";
@@ -176,7 +176,7 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 				gzwrite($fp, $Dx_Create_Tables);
 				gzclose($fp);
 			break;
-		
+
 			default:
 				// Random 5 characters to append to file names to prevent name guessing
 				$rand = substr(md5(microtime()),rand(0,26),5);
@@ -189,12 +189,12 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 		} // switch
         return "$err_msg<font color=green>".$GONX["backup"]." ".$this->dbName." ".$GONX["iscorrectcreat"]." : ".$this->backupdir."/$fname</font>";
 	}
-	
-	
+
+
 	/**
 	 * backup::generate()		Create a backup file of the DB
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function generate(){
 		global $GONX, $GonxAdmin;
@@ -203,8 +203,8 @@ DROP TABLE IF EXISTS " . $val[0] . ";
             $res = $this-> query("SHOW CREATE TABLE " . $this->dbName . "." . $table[0]);
 
             while ($resu[] = $this -> get_data()) {
-            } 
-        } 
+            }
+        }
         foreach($resu as $key => $val) {
 			$tbl_name_status = $this->valid_table_name($val[0]);
             if (trim($val[0]) !== "" and $tbl_name_status) {
@@ -220,40 +220,40 @@ DROP TABLE IF EXISTS " . $val[0] . ";
                         if (!is_int($col_name)) {
                             $fields .= "`$col_name`,";
 							$values .= "'" . $this->escape_string($col_value) . "',";
-                        } 
-                    } 
+                        }
+                    }
 
                     $fields = substr($fields, 0, strlen($fields)-1);
                     $values = substr($values, 0, strlen($values)-1);
                     $myquery = $query . $fields . ") values (" . $values . ");";
                     $Dx_Create_Tables .= $myquery . "\r\n" ;
-                } 
+                }
 				$this -> query("UNLOCK TABLES;");
             }  elseif (!$tbl_name_status){
 				$err_msg .= "<font color=red>Ignored table ".$val[0]." - Reserved SQL word.</font><br>\n";
 			}
-        } 
-		
+        }
+
 		if (!is_dir($this->backupdir)) {
 		    @mkdir($this->backupdir,octdec($this->file_mod));
 		}
 		switch($this->compression){
-			case "bz2": 
+			case "bz2":
 				$fname = "MySQL-Data-Backup-" . $this->dbName."-".date("Y-m-d H-i-s").".bz2";
 				touch($this->backupdir."/".$fname);
 				$fp = bzopen($this->backupdir."/".$fname, "w");
 				bzwrite($fp, $Dx_Create_Tables);
 				bzclose($fp);
 			break;
-			
-		    case "zlib": 
+
+		    case "zlib":
 				$fname = "MySQL-Data-Backup-" . $this->dbName."-".date("Y-m-d H-i-s").".gz";
 				touch($this->backupdir."/".$fname);
 				$fp = gzopen($this->backupdir."/".$fname, "w");
 				gzwrite($fp, $Dx_Create_Tables);
 				gzclose($fp);
 			break;
-		
+
 			default:
 				// Random 5 characters to append to file names to prevent name guessing
 				$rand = substr(md5(microtime()),rand(0,26),5);
@@ -266,16 +266,16 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 		} // switch
 		// Random 5 characters to append to file names to prevent name guessing
 		$rand = substr(md5(microtime()),rand(0,26),5);
-		
+
 		$this->filename = date("Y-m-d_H-i-s")."_".$rand.".sql";
         return "$err_msg<font color=green>".$GONX["backup"]." ".$this->dbName." ".$GONX["iscorrectcreat"]." : ".$this->backupdir."/$fname</font>";
 	}
 
 	/**
 	 * backup::import()		Import a Backup file to DB
-	 * 
+	 *
 	 * @param string $bfile
-	 * @return 
+	 * @return
 	 **/
 	function import($bfile = ""){
 		global $GONX,$GonxAdmin;
@@ -284,7 +284,7 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 		if (isset($_GET["importdump"])) {
 		    if (is_file($this->backupdir."/".$bfile)) {
 				switch($GonxAdmin["compression_default"]){
-					case "bz2": 
+					case "bz2":
 						$bz = bzopen($this->backupdir."/".$bfile, "r");
 						while (!feof($bz)) {
 	  						  $contents .= bzread($bz, 4096);
@@ -292,20 +292,20 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 	//					$contents = bzread($bz, filesize($this->backupdir."/".$bfile)*1000); // just a hack coz feof doesn't wrk for me
 						bzclose($bz);
 					break;
-					
-				    case "zlib": 
+
+				    case "zlib":
 						$bz = gzopen($this->backupdir."/".$bfile, "r");
 						$contents = gzread($bz, filesize($this->backupdir."/".$bfile)*1000); // just a hack coz feof doesn't wrk for me
 						gzclose($bz);
 					break;
-				
+
 					default:
 						$bz = fopen($this->backupdir."/".$bfile, "r");
 						$contents = fread($bz, filesize($this->backupdir."/".$bfile)*1000); // just a hack coz feof doesn't wrk for me
 						fclose($bz);
 					break;
 				} // switch
-				
+
 
 				// Convert to mysql dump format
 				$contents = str_replace("<xquery>", "", $contents);
@@ -328,7 +328,7 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 
 		if (is_file($this->backupdir."/".$bfile)) { // File existe, import it
 			switch($GonxAdmin["compression_default"]){
-				case "bz2": 
+				case "bz2":
 					$bz = bzopen($this->backupdir."/".$bfile, "r");
 					while (!feof($bz)) {
   						  $contents .= bzread($bz, 4096);
@@ -336,13 +336,13 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 //					$contents = bzread($bz, filesize($this->backupdir."/".$bfile)*1000); // just a hack coz feof doesn't wrk for me
 					bzclose($bz);
 				break;
-				
-			    case "zlib": 
+
+			    case "zlib":
 					$bz = gzopen($this->backupdir."/".$bfile, "r");
 					$contents = gzread($bz, filesize($this->backupdir."/".$bfile)*1000); // just a hack coz feof doesn't wrk for me
 					gzclose($bz);
 				break;
-			
+
 				default:
 					$bz = fopen($this->backupdir."/".$bfile, "r");
 					$contents = fread($bz, filesize($this->backupdir."/".$bfile)*1000); // just a hack coz feof doesn't wrk for me
@@ -361,43 +361,43 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 			return false;
 		}
 	}
-	
+
 	/**
 	 * backup::importfromfile()		Download and Import a Backup file to DB
-	 * 
+	 *
 	 * @param string $bfile
-	 * @return 
+	 * @return
 	 **/
 	function importfromfile(){
 		global $GONX,$HTTP_POST_FILES;
 		@set_time_limit(0);
 
-		
+
 		$bfile = $HTTP_POST_FILES["backupfile"];
 		$pathinfo = pathinfo($bfile["name"]);
 		$compression = $pathinfo["extension"];
-				
+
 		if ($bfile["error"]==0) { // File existe, import it
 			switch($compression){
-				case "bz2": 
+				case "bz2":
 					$bz = bzopen($bfile["tmp_name"], "r");
 					$contents = bzread($bz, $bfile["size"]); // just a hack coz feof doesn't wrk for me
 					bzclose($bz);
 				break;
-				
-			    case "gz": 
+
+			    case "gz":
 					$gz = gzopen($bfile["tmp_name"], "r");
 					$contents = gzread($gz, $bfile["size"]); // just a hack coz feof doesn't wrk for me
 					bzclose($gz);
 				break;
-			
+
 				default:
 					$f = fopen($bfile["tmp_name"], "r");
 					$contents = fread($f, $bfile["size"]); // just a hack coz feof doesn't wrk for me
 					fclose($f);
 				break;
 			} // switch
-			
+
 
             preg_match_all("'<xquery[?>]*?>(.*?)</xquery>'si" , $contents, $requetes);
             //<?
@@ -409,11 +409,11 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 			return $this->listbackups();
 		}
 	}
-	
+
 	/**
 	 * backup::listbackups()		List available backup
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function listbackups(){
 		global $GONX,$GonxAdmin,$page,$orderby;
@@ -422,7 +422,7 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 		if ($orderby=="" or !in_array($orderby,$GonxOrder )) {
 		    $orderby = $this->default_sort_order;
 		}
-		
+
 		if( !isset( $page ) or ($page<=0) ){
 
 			$page = 1;
@@ -448,9 +448,9 @@ DROP TABLE IF EXISTS " . $val[0] . ";
 <script language=\"JavaScript\" type=\"text/javascript\">
 <!--
 //author Philippe BENVENISTE  <info@pommef.com>
-//copyright Pommef - IdŽes et Changements (c) 2004
+//copyright Pommef - Idï¿½es et Changements (c) 2004
 
-function IECColor1(el) {	
+function IECColor1(el) {
 	IEC_obj2.IECColor(el);
 	IEC_obj1.IECColor(el);
 }
@@ -460,18 +460,18 @@ function IECColor2(el){
 
 	IEC_obj1.IECColor(el);
 	IEC_obj2.IECColor(el);
-	
+
 	if(ConfirmDelete()){
-	
+
 		return true;
-		
+
 	} else {
-	
+
 		document.getElementById(el).style.background = IEC_obj1.BG2;
 		document.forms[\"bform\"].reset();
-		
+
 		return false;
-	}					
+	}
 }
 
 function IECColorClass(BG1, BG2){
@@ -482,17 +482,17 @@ function IECColorClass(BG1, BG2){
 	this.IECColor=IECColor;
 }
 
-function IECColor(el) {	
+function IECColor(el) {
 
 	document.getElementById(el).style.background = this.BG1;
 
 	if(this.gvar < 9000 && this.gvar != el)
-		document.getElementById(this.gvar).style.background = this.BG2;	
-	
+		document.getElementById(this.gvar).style.background = this.BG2;
+
 	this.gvar = el;
 }
 
-IEC_obj1 = new IECColorClass('khaki','#F6F6F6'); 
+IEC_obj1 = new IECColorClass('khaki','#F6F6F6');
 IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 
 
@@ -510,12 +510,12 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 				$time = filemtime($this->backupdir."/".$entry);
 				$size = filesize($this->backupdir."/".$entry);
 				$fsize = round($size/1024);
-				
+
 				$GonxBackups[$i]["fname"] = $entry;
 				$GonxBackups[$i]["mtime"] = $mtime;
 				$GonxBackups[$i]["time"] = $time;
 				$GonxBackups[$i]["fsize"] = $fsize;
-				$GonxBackups[$i]["size"] = $size;			
+				$GonxBackups[$i]["size"] = $size;
 				$BackupSize += $fsize;
 				$i++;
 			}
@@ -526,7 +526,7 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 			/**
 			* Pagination
 			*/
-			$allpages = round(sizeof($GonxBackups)/$pagesize); 
+			$allpages = round(sizeof($GonxBackups)/$pagesize);
 
 			$all_rest = $allpages - $allpages*$pagesize;
 
@@ -562,31 +562,31 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 			}
 			$OrderMenu .= "</select>\n";
 			switch($orderby){
-				case "DateAsc": 
+				case "DateAsc":
 					usort($GonxBackups, array("backup","DateSortAsc"));
 				break;
-				
-			    case "NameAsc": 
+
+			    case "NameAsc":
 					usort($GonxBackups, array("backup","NameSortAsc"));
 				break;
 
-			    case "NameDesc": 
+			    case "NameDesc":
 					usort($GonxBackups, array("backup","NameSortDesc"));
 				break;
-				
-			    case "SizeAsc": 
+
+			    case "SizeAsc":
 					usort($GonxBackups, array("backup","SizeSortAsc"));
 				break;
-				
-			    case "SizeDesc": 
+
+			    case "SizeDesc":
 					usort($GonxBackups, array("backup","SizeSortDesc"));
 				break;
-			
+
 				default:
 					usort($GonxBackups, array("backup","DateSortDesc"));
 				break;
 			} // switch
-			
+
 			if (is_array($GonxBackups)) {
 			    $GonxBackups = array_slice($GonxBackups, $from,$to);
 			}
@@ -624,106 +624,106 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 		$res .= "</table><br/><br/><em>".$GONX["totalbackupsize"]." : $BackupSize Mo</em> - ".$GONX["chgdisplayorder"]." : $OrderMenu
 		<br/><br/><input type=hidden name=go value=import>
 		<p align=right>";
-		
+
 		if($this->mysqldump)
 			$res .="<input type=submit name=importdump value=\"".$GONX["importbackupdump"]."\" class=button>";
-		
+
 		$res .="  <input type=submit name=import value=\"".$GONX["importbackup"]."\" class=button></p></form>\n";
 		$res .= "<form method=post action=\"?\" enctype=\"multipart/form-data\"><b>".$GONX["importbackupfile"]." :</b><br/><br/>
 		<input type=file name=backupfile class=button>
 		<br/><br/><input type=hidden name=go value=importfromfile>
-		<p align=right><input type=submit name=import value=\"".$GONX["importbackup"]."\" class=button></p></form>\n";	
+		<p align=right><input type=submit name=import value=\"".$GONX["importbackup"]."\" class=button></p></form>\n";
 		}
-		
+
 
 		$d->close();
 		return $res;
 	}
-	
+
 
 	/**
 	 * backup::NameSortAsc()
-	 * 
+	 *
 	 * @param $a
 	 * @param $b
-	 * @return 
+	 * @return
 	 **/
 	function NameSortAsc($a, $b) {
-	
+
 	    return strcmp($a["fname"], $b["fname"]);
-	
+
 	}
-	
+
 	/**
 	 * backup::NameSortDesc()
-	 * 
+	 *
 	 * @param $a
 	 * @param $b
-	 * @return 
+	 * @return
 	 **/
 	function NameSortDesc($a, $b) {
-	
+
 	    return !strcmp($a["fname"], $b["fname"]);
-	
+
 	}
-	
+
 	/**
 	 * backup::SizeSortAsc()
-	 * 
+	 *
 	 * @param $a
 	 * @param $b
-	 * @return 
+	 * @return
 	 **/
 	function SizeSortAsc($a, $b) {
-	
+
 		return ($a["size"]>$b["size"])?1:-1;
-	
+
 	}
-	
+
 	/**
 	 * backup::SizeSortDesc()
-	 * 
+	 *
 	 * @param $a
 	 * @param $b
-	 * @return 
+	 * @return
 	 **/
 	function SizeSortDesc($a, $b) {
-	
+
 		return ($a["size"]<$b["size"])?1:-1;
-	
+
 	}
-	
+
 	/**
 	 * backup::DateSortAsc()
-	 * 
+	 *
 	 * @param $a
 	 * @param $b
-	 * @return 
+	 * @return
 	 **/
 	function DateSortAsc($a, $b) {
-	
+
 		return ($a["time"]>$b["time"])?1:-1;
-	
+
 	}
-	
+
 	/**
 	 * backup::DateSortDesc()
-	 * 
+	 *
 	 * @param $a
 	 * @param $b
-	 * @return 
+	 * @return
 	 **/
 	function DateSortDesc($a, $b) {
 
 		return ($a["time"]<$b["time"])?1:-1;
-	
+
 	}
-	
+
 	/**
 	 * backup::delete()	delete a backup file based on its name
-	 * 
+	 *
 	 * @param $_fname
-	 * @return 
+	 * @return
 	 **/
 	function delete($_fname){
 		if (is_file($this->backupdir."/".$_fname)) {
@@ -731,12 +731,12 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 			return "<font color=green> Backup file $_fname is correctly removed </font>";
 		} else return "<font color=red> Error while removing backup file $_fname</font>";
 	}
-	
+
 	/**
 	 * backup::keep()		Keep backup files for a limited period of days and remove all others
-	 * 
+	 *
 	 * @param integer $days
-	 * @return 
+	 * @return
 	 **/
 	function keep($days = 4){
 		if (is_dir($this->backupdir)) {
@@ -750,14 +750,14 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 			}
 		}
 	}
-	
+
 	/**
 	 * method optimize : execute an operation in all db table
-	 * 
+	 *
 	 * @param	$operation	operation to execute on DB
-	 * 
+	 *
 	 * @access public
-	 * @return void 
+	 * @return void
 	 **/
 	function optimize($operation = "OPTIMIZE"){
 		global $GonxAdmin;
@@ -770,7 +770,7 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 	$color3 = $this->color3;
 		$color2 = $this->color2;
 		$color1 = $this->color1;
-		
+
 		$Tables = $this->get_db_tables();
 		$query = "$operation TABLE ";
 		foreach($Tables as $k=>$v){
@@ -793,7 +793,7 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 					if ($col_value == "OK") {
 					    $optimize = " <a href=\"?option=databaseAdmin&go=optimize&op=OPTIMIZE\" class=tab-s>Optimize DB</a>";
 					} else $optimize="";
-		            $res .= "\t\t<td valign=\"top\"  bgcolor=\"$bgcolor\">$col_value $optimize</td>\n";   
+		            $res .= "\t\t<td valign=\"top\"  bgcolor=\"$bgcolor\">$col_value $optimize</td>\n";
 				}
 	        }
 	        $res .= "\t</tr>\n";
@@ -801,14 +801,14 @@ IEC_obj2 = new IECColorClass('#CF2B5A','#F6F6F6');
 			    $bgcolor = $color2;
 			} else $bgcolor = $color3;
 	    }
-		$res .= "</table>\n";			
+		$res .= "</table>\n";
 		return $res;
 	}
-	
+
 	/**
 	 * backup::configure()	Configuration menu for the application
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function configure(){
 		global $GONX;
@@ -828,18 +828,18 @@ foreach($matches[1] as $k=>$v){
 	$value = trim(htmlentities($matches[2][$k]));
 	$initform .= "  <tr><td>$v</td><td><input type=text size=40 name=vars[$k] value=\"$value\"></td></tr>\n\n";
 }
-$initform .= " 
+$initform .= "
 </table>
 <p align=right><input type=submit  style=\"width:200\"  class=button></p>
 <input type=hidden name=go value=saveconfig>
 </form>\n\n";
 		return $initform ;
 	}
-	
+
 	/**
 	 * backup::saveconfig()		Save configuration to init.php
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function saveconfig(){
 		global $vars;
@@ -849,41 +849,41 @@ $initform .= "
 		foreach($matches[1] as $k=>$v){
 			$contents = str_replace($matches[1][$k]."=".$matches[2][$k].";",$matches[1][$k]."= ".stripcslashes($vars[$k]).";", $contents);
 		}
-		// Assurons nous que le fichier est accessible en Žcriture
+		// Assurons nous que le fichier est accessible en ï¿½criture
 		if (is_writable($filename)) {
-		
+
 		    // Dans notre exemple, nous ouvrons le fichier $filename en mode d'ajout
-		    // Le pointeur de fichier est placŽ ˆ la fin du fichier
-		    // c'est lˆ que $somecontent sera placŽ
+		    // Le pointeur de fichier est placï¿½ ï¿½ la fin du fichier
+		    // c'est lï¿½ que $somecontent sera placï¿½
 		    if (!$handle = fopen($filename, 'w')) {
 		         echo "Impossible d'ouvrir le fichier ($filename)";
 		         exit;
 		    }
-		
+
 		    // Ecrivons quelque chose dans notre fichier.
 		    if (fwrite($handle, $contents) === FALSE) {
-		       echo "Impossible d'Žcrire dans le fichier ($filename)";
+		       echo "Impossible d'ï¿½crire dans le fichier ($filename)";
 		       exit;
-		    }		    
+		    }
 		    fclose($handle);
 		    return TRUE;
 		} else {
 		    return FALSE;
 		}
 	}
-	
+
 	/**
 	 * backup::monitor()		Return tables status
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function monitor(){
-	
+
 		$color3 = $this->color3;
 		$color2 = $this->color2;
 		$color1 = $this->color1;
-		
-		
+
+
 		$res = '<table border=0 cellpadding=5>';
         $result =  $this->query('SHOW TABLE STATUS');
 		$i = 0;		$bgcolor = $color3; $l1 = $l2 = "";
@@ -891,7 +891,7 @@ $initform .= "
 			foreach($table as $k=>$v){
 				if (!is_integer($k)) {
 					$l1 .= "<th bgcolor=\"$color1\"><font size=1>$k</font></th>\n";
-					$l2 .= "<td bgcolor=\"$bgcolor\"><font size=1>$v</font></td>\n"; 
+					$l2 .= "<td bgcolor=\"$bgcolor\"><font size=1>$v</font></td>\n";
 				}
 			}
 			if ($i==0) {
@@ -907,20 +907,20 @@ $initform .= "
 		$res .= '</table>';
 		return $res;
 	}
-	
-	
+
+
 	/**
 	 * backup::getbackup()
-	 * 
-	 * @return 
+	 *
+	 * @return
 	 **/
 	function getbackup($bfile){
 
 		if (is_file($this->backupdir."/".$bfile) and !strstr($bfile,"../")) {
-			
+
 			header("Pragma: public");
 			header("Expires: 0");
-			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 			
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Content-Type: application/force-download");
 			header("Content-Disposition: attachment; filename=".basename($this->backupdir."/".$bfile));
 			header("Content-Description: File Transfer");
@@ -928,8 +928,8 @@ $initform .= "
 			exit;
 		}
 	}
-	
-	
+
+
 }
 
 ?>

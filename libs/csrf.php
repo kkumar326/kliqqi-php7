@@ -12,7 +12,7 @@ class CSRF {
 	// define other variables
 	var $datalog = ''; // an array of all the log items
 
-	function CSRF(){
+	function __construct(){
 		$this->start();
 	}
 
@@ -61,10 +61,10 @@ class CSRF {
 	function check_valid($token, $name){
 		// see if the $token matches what the token was previously set to.
 		if ($token == $_SESSION['token_' . $name]) {
-			$this->log('token: ' . $name . ' matches'); 
+			$this->log('token: ' . $name . ' matches');
 			return true;
 		} else {
-			$this->log('token: ' . $name . ' does not match: ' . $token); 
+			$this->log('token: ' . $name . ' does not match: ' . $token);
 			return false;
 		}
 	}
@@ -76,10 +76,10 @@ class CSRF {
 			// delete the tokens in session for this person
 			unset($_SESSION['token_' . $name]);
 			unset($_SESSION['token_time_' . $name]);
-			$this->log('token: ' . $name . ' has expired -- token created: ' . $this->get_time($name) . ' -- token age: ' . $token_age); 
+			$this->log('token: ' . $name . ' has expired -- token created: ' . $this->get_time($name) . ' -- token age: ' . $token_age);
 			return true;
 		} else {
-			$this->log('token: ' . $name . ' has not expired'); 
+			$this->log('token: ' . $name . ' has not expired');
 			return false;
 		}
 	}
@@ -105,11 +105,11 @@ class CSRF {
 		// creates the HTML for a hidden text field with the token
 		// assigns to smarty if $assign == true
 		$field = '<input type="hidden" name="token" value="' . $this->get_value($name) . '">';
-		$this->log('created hidden field for token: ' . $name); 
+		$this->log('created hidden field for token: ' . $name);
 		if($assign == true){
 			global $main_smarty;
 			$main_smarty->assign('hidden_token_' . $name, $field);
-			$this->log('Assigning to smarty hidden field for token: ' . $name . ' to ' . $field); 
+			$this->log('Assigning to smarty hidden field for token: ' . $name . ' to ' . $field);
 		}
 		return $field;
 	}
@@ -119,11 +119,11 @@ class CSRF {
 		// ex: &token=tokenIDhere
 		// and assigns to smarty if $assign == true
 		$uri = '&token=' . $this->get_value($name);
-		$this->log('created uri for token: ' . $name); 
+		$this->log('created uri for token: ' . $name);
 		if($assign == true){
 			global $main_smarty;
 			$main_smarty->assign('uri_token_' . $name, $uri);
-			$this->log('Assigning to smarty uri for token: ' . $name . ' to ' . $uri); 
+			$this->log('Assigning to smarty uri for token: ' . $name . ' to ' . $uri);
 		}
 		return $uri;
 	}

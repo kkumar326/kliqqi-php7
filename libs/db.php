@@ -278,7 +278,7 @@ if(!defined('mnminclude')){header('Location: ../error_404.php');die();}
 		*  same time as initialising the ezSQL_mysql class
 		*/
 
-		function ezSQL_mysql($dbuser='', $dbpassword='', $dbname='', $dbhost='localhost')
+		function __construct($dbuser='', $dbpassword='', $dbname='', $dbhost='localhost')
 		{
 			$this->dbuser = $dbuser;
 			$this->dbpassword = $dbpassword;

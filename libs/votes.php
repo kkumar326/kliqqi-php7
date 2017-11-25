@@ -9,11 +9,11 @@ class Vote {
 	var $karma=0;
 	var $link;
 	var $ip='';
-	
-	function Vote() {
+
+	function __construct() {
 		return;
 	}
-	
+
 	function sum(){
 		global $db;
 		if(!is_numeric($this->link)) die();
@@ -23,7 +23,7 @@ class Vote {
 		$sum = $this->adjust($sum);
 		return $sum;
 	}
-	
+
 	function adjust($vote_sum){
 		// if not factoring karma, and just using a straight + / - voting system, we'll divide by 10.
 		return $vote_sum / 10;
@@ -38,7 +38,7 @@ class Vote {
 			$where .= " AND vote_user_id=$this->user";
 		}
 		// DB 11/10/08
-		if($this->user <= 0 || !empty($this->ip)) {	
+		if($this->user <= 0 || !empty($this->ip)) {
 		/////
 			if ($this->ip == '') {
 				require_once(mnminclude.'check_behind_proxy.php');
@@ -50,10 +50,10 @@ class Vote {
 		return $count;
 	}
 
-		
-	
-	
-	
+
+
+
+
 	function user_list_all_votes($cacheit = TRUE) {
 		global $db, $cached_votes, $current_user;
 
@@ -62,17 +62,17 @@ class Vote {
 
 		$get_data = FALSE;
 		// by default we won't touch the DB
-		// we'll check the cache first, and 
+		// we'll check the cache first, and
 		// access the DB only if needed.
 
 		$link_copy = $this->link;
 		// just make a copy
-		
+
 		$cache_user = $current_user->user_id;
 		// the 'user' that voted. by default its the user
 		// passed to this class
 
-	
+
 		// if no user is set and no ip is set, check the ip
 		// address and set it as the $cache_user (anonymous user)
 		if($cache_user == 0 || !empty($this->ip)) {
@@ -82,7 +82,7 @@ class Vote {
 				$cache_user = $this->ip;
 			}
 		}
-		
+
 
 		// if we sent an array of link_id's
 		if(is_array($this->link)){
@@ -116,10 +116,10 @@ class Vote {
 
 		if($cache_user == 0 || !empty($this->ip)) {
 			$where .= " AND vote_user_id=0 AND vote_ip='$this->ip'";
-		} else { 
+		} else {
 			$where .= " AND vote_user_id=$cache_user";
 		}
-		
+
 		if ($get_data == TRUE) {
 			$sql = $db->get_results("SELECT * FROM " . table_votes . " WHERE $where");
 
@@ -127,7 +127,7 @@ class Vote {
 				if ($sql){
 					foreach ($sql as $vote_row){
 						$cached_votes[$vote_row->vote_link_id][$vote_row->vote_user_id] = $vote_row;
-						
+
 						// link_copy is a 'copy' of $link
 						// for each linkid that we just found, unset (delete) it from
 						// the link_copy array. we will then be left with linkid of
@@ -141,28 +141,28 @@ class Vote {
 								}
 							}
 						}
-						
+
 					}
 				}
 			}
-			
+
 			if (is_array($link_copy)){
 				foreach($link_copy as $linkid){
 				  // for each linkid in link_copy give it a dummy value
 				  // of array(0). then when we process the cached_votes and we
 				  // find one with a value of array(0) we know that this link
 				  // was searched for but the user didnt vote for it (no results)
-				  
+
 				  // if we don't do this, then the linkid won't appear in the results
 				  // list because the user never voted for it, so we will end up
 				  // seaching mysql for it again, and again finding no results, wasting
 				  // time
-				  
+
 					$cached_votes[$linkid][$cache_user] = array(0);
 				}
 			}
 
-			return $sql;		
+			return $sql;
 		} else {
 			// in the cache so return the cached results only if $this->link
 			// is NOT an array. if it is an array then we're just doing
@@ -180,7 +180,7 @@ class Vote {
 		$sql=$db->get_results("SELECT * FROM " . table_votes . " WHERE $where");
 		return $sql;
 	}
-	
+
 	function count($value="> 0") {
 		global $db;
 		$where = "vote_type='$this->type' AND vote_link_id=$this->link AND vote_value $value";
@@ -274,13 +274,13 @@ class Vote {
 		}
 		$this->value=intval($this->value);
 		$sql="INSERT IGNORE INTO " . table_votes . " (vote_type, vote_user_id, vote_link_id, vote_value, vote_ip, vote_karma) VALUES ('$this->type', $this->user, $this->link, $this->value, '$this->ip', '{$this->karma}')";
-		
+
 		$vars = array('vote'=>&$this);
 		check_actions('vote_post_insert', $vars);
 
 		return $db->query($sql);
 	}
-	
+
 	function remove()	{
 		global $db, $the_template;
 		if(empty($this->ip)) {
@@ -297,8 +297,8 @@ class Vote {
 		if($the_vote){
 			$sql = "Delete from "	. table_votes . " where vote_id = " . $the_vote;
 			return $db->query($sql);
-		}	
-	
+		}
+
 	}
 }
 ?>

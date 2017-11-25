@@ -35,7 +35,7 @@ class config {
 	var $_bool_false_regexp		= null;
 	var $_qstr_regexp		= null;
 
-	function config()
+	function __construct()
 	{
 		$this->_db_qstr_regexp = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"';
 		$this->_bool_true_regexp = 'true|yes|on';
@@ -72,8 +72,8 @@ class config {
 		if (preg_match("/^(.*?)(\n\[|\Z)/s", $contents, $match))
 		{
 			$_result["globals"] = $this->_parse_config_section($match[1]);
-		} 
-		else 
+		}
+		else
 		{
 			$_result["globals"] = $this->_parse_config_section($contents);
 		}
@@ -156,7 +156,7 @@ class config {
 			}
 			if (!is_numeric($values[$i]) && !is_bool($values[$i]))
 			{
-				$values[$i] = str_replace("\n",'',stripslashes(substr($values[$i], 1, -1)));	
+				$values[$i] = str_replace("\n",'',stripslashes(substr($values[$i], 1, -1)));
 				if(function_exists("iconv") && detect_encoding($values[$i])!='utf-8')
 				    $values[$i] = iconv('','UTF-8//IGNORE',$values[$i]);
 			}
@@ -179,9 +179,9 @@ class config {
 
 if (!function_exists('detect_encoding'))
 {
-	function detect_encoding($string) {  
+	function detect_encoding($string) {
 	  static $list = array('utf-8');
-	  
+
 	  foreach ($list as $item) {
 	    $sample = iconv($item, $item, $string);
 	    if (md5($sample) == md5($string))

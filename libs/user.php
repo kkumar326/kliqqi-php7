@@ -32,9 +32,9 @@ class User {
 	var $total_links = 0;
 	var $published_links = 0;
 	var $extra = '';
-	
 
-	function User($id=0) {
+
+	function __construct($id=0) {
 		if ($id>0) {
 			$this->id = $id;
 			$this->read();
@@ -43,31 +43,31 @@ class User {
 
 function Create(){
 		global $db, $main_smarty,$the_template,$my_base_url,$my_kliqqi_base;
-		
+
 		if($this->username == ''){return false;}
 		if($this->pass == ''){return false;}
 		if($this->email == ''){return false;}
-		
+
 
 		if (!user_exists($this->username)) {
 
 			require_once(mnminclude.'check_behind_proxy.php');
 			$userip=check_ip_behind_proxy();
 			$saltedpass=generateHash($this->pass);
-			
+
 			if(kliqqi_validate()){
 				if ($db->query("INSERT IGNORE INTO " . table_users . " (user_login, user_email, user_pass, user_date, user_ip,user_categories) VALUES ('".$this->username."', '".$this->email."', '".$saltedpass."', now(), '".$userip."', '')")) {
-				
+
 					$result = $db->get_row("SELECT user_email, user_pass, user_karma, user_lastlogin FROM " . table_users . " WHERE user_login = '".$this->username."'");
 					$encode = md5($this->email . $result->user_karma .  $this->username. kliqqi_hash().$main_smarty->get_config_vars('KLIQQI_Visual_Name'));
 
 					$username = $this->username;
 					$password = $this->pass;
-					
+
 					$my_base_url=$my_base_url;
 					$my_kliqqi_base=$my_kliqqi_base;
-					
-					$domain = $main_smarty->get_config_vars('KLIQQI_Visual_Name');			
+
+					$domain = $main_smarty->get_config_vars('KLIQQI_Visual_Name');
 					$validation = my_base_url . my_kliqqi_base . "/validation.php?code=$encode&uid=".$this->username;
 					$str = $main_smarty->get_config_vars('KLIQQI_PassEmail_verification_message');
 					eval('$str = "'.str_replace('"','\"',$str).'";');
@@ -87,8 +87,8 @@ function Create(){
 					$mail->Subject = $main_smarty->get_config_vars('KLIQQI_PassEmail_Subject_verification');
 					$mail->CharSet = 'utf-8';
 					$mail->Body = $message;
-				
-					
+
+
 					if(!$mail->Send())
 					{
 						return false;
@@ -99,13 +99,13 @@ function Create(){
 					return false;
 				}
 			} else{
-			
+
 					if ($db->query("INSERT IGNORE INTO " . table_users . " (user_login, user_email, user_pass, user_date, user_ip, user_lastlogin,user_categories) VALUES ('".$this->username."', '".$this->email."', '".$saltedpass."', now(), '".$userip."', now(),'')")) {
 						return true;
 					} else {
 						return false;
 					}
-			
+
 			}
 		} else {
 			die('User already exists');
@@ -139,7 +139,7 @@ function Create(){
 			$saltedpass=generateHash($user_pass);}
 		else{
 			$saltedpass=$user_pass;}
-			
+
 		if($this->id===0) {
 			$this->id = $db->insert_id;
 		} else {
@@ -161,7 +161,7 @@ function Create(){
 			}
 		}
 	}
-	
+
 	function read($data = "long") {
 		// $data = long -- return all user data
 		// $data = short -- return just basic info
@@ -170,12 +170,12 @@ function Create(){
 		if($this->id > 0)
 		{
 			$where = "user_id = $this->id";
-		}	
+		}
 		else if(!empty($this->username))
 		{
 			$where = "user_login='".$db->escape($this->username)."'";
 
-			// if we only know the users login, check the cache to see if it's 
+			// if we only know the users login, check the cache to see if it's
 			// already in there and set $this->id so the code below can find it in the cache.
 			foreach($cached_users as $user){
 				if($user->user_login == $this->username){$this->id = $user->user_id;}
@@ -183,7 +183,7 @@ function Create(){
 		}
 
 		if(!empty($where)) {
-			
+
 			// this is a simple cache type system
 			// when we lookup a user from the DB, store the results in memory
 			// in case we need to lookup that user information again
@@ -193,12 +193,12 @@ function Create(){
 				$user = $cached_users[$this->id];
 			}else{
 				if(!$user = $db->get_row("SELECT  *  FROM " . table_users . " WHERE $where")){return false;}
-				
+
 				if($this->id > 0)
 				{
 					//only cache when the id is provided.
 					$cached_users[$this->id] = $user;
-				}	
+				}
 			}
 
 			$this->id = $user->user_id;
@@ -258,7 +258,7 @@ function Create(){
 		$this->total_comments = $db->get_var("SELECT count(*) FROM " . table_comments . " WHERE comment_status='published' AND comment_user_id = $this->id $comment_date");
 		return true;
 	}
-	
+
 	function fill_smarty($main_smarty, $stats = 1){
 		global $db;
 		$vars = '';
@@ -278,7 +278,7 @@ function Create(){
 		$main_smarty->assign('user_login', $this->username);
 		$main_smarty->assign('user_names', $this->names);
 		$main_smarty->assign('user_username', $this->username);
-		
+
 		$users = $db->get_results("SELECT user_karma, COUNT(*) FROM ".table_users." WHERE user_level NOT IN ('Spammer') AND user_karma>0 AND (user_login!='anonymous' OR user_lastip) GROUP BY user_karma ORDER BY user_karma DESC",ARRAY_N);
 		$ranklist = array();
 		$rank = 1;
@@ -287,7 +287,7 @@ function Create(){
 		    {
 				$ranklist[$dbuser[0]] = $rank;
 				$rank++;
-				
+
 		    }
 		/* Redwine: added Key check to eliminate the php warning about undefined index in case the user has negative karma. */
 		if (array_key_exists($this->karma, $ranklist)) {
@@ -297,9 +297,9 @@ function Create(){
 		}
 
 /*		global $db;
-		$groups = $db->get_results($sql="SELECT * FROM " . table_group_member . "  	
+		$groups = $db->get_results($sql="SELECT * FROM " . table_group_member . "
 					LEFT JOIN " . table_groups . " ON group_id=member_group_id
-					WHERE member_user_id = {$this->id} 
+					WHERE member_user_id = {$this->id}
 						AND member_status = 'active'
 						AND group_status = 'Enable'");
 //print $sql;
@@ -309,8 +309,8 @@ function Create(){
 print_r($main_smarty);
 */
 		user_group_read($this->id);
-			
-		if($stats == 1){		
+
+		if($stats == 1){
 			$this->all_stats();
 			$main_smarty->assign('user_total_links', $this->total_links);
 			$main_smarty->assign('user_published_links', $this->published_links);
@@ -318,23 +318,23 @@ print_r($main_smarty);
 			$main_smarty->assign('user_total_votes', $this->total_votes);
 			$main_smarty->assign('user_published_votes', $this->published_votes);
 		}
-					
+
 		return $main_smarty;
 	}
 
 	function getFollowersCount() {
 	    global $db;
-	    return $db->get_var($sql="SELECT COUNT(*) 
-					FROM ".table_friends." 
-					LEFT JOIN ".table_users." ON friend_from=user_id 
+	    return $db->get_var($sql="SELECT COUNT(*)
+					FROM ".table_friends."
+					LEFT JOIN ".table_users." ON friend_from=user_id
 					WHERE friend_to=$this->id AND friend_from!=$this->id AND user_enabled=1");
 	}
 
 	function getFollowingCount() {
 	    global $db;
-	    return $db->get_var("SELECT COUNT(*) 
-					FROM ".table_friends." 
-					LEFT JOIN ".table_users." ON friend_to=user_id 
+	    return $db->get_var("SELECT COUNT(*)
+					FROM ".table_friends."
+					LEFT JOIN ".table_users." ON friend_to=user_id
 					WHERE friend_from=$this->id AND friend_to!=$this->id AND user_enabled=1");
 	}
 }
@@ -349,19 +349,19 @@ function user_group_read($user_id,$order_by='')
 		$order_by = "group_name DESC";
 	include_once(mnminclude.'smartyvariables.php');
 
-	$groups = $db->get_results($sql="SELECT * FROM " . table_group_member . "  	
+	$groups = $db->get_results($sql="SELECT * FROM " . table_group_member . "
 					LEFT JOIN " . table_groups . " ON group_id=member_group_id
-					WHERE member_user_id = $user_id 
+					WHERE member_user_id = $user_id
 						AND member_status = 'active'
 						AND group_status = 'Enable'
 						ORDER BY $order_by");
 	if ($groups) {
 		$group_display = '';
 		foreach($groups as $groupid){
-			$group_display .= "<tr><td><a href='".getmyurl("group_story_title", $groupid->group_safename)."'>".$groupid->group_name."</a></td><td style='text-align:center;'>".$groupid->group_members."</td></tr>"; 
+			$group_display .= "<tr><td><a href='".getmyurl("group_story_title", $groupid->group_safename)."'>".$groupid->group_name."</a></td><td style='text-align:center;'>".$groupid->group_members."</td></tr>";
 		}
 		$main_smarty->assign('group_display', $group_display);
-	}	
+	}
 	return true;
 }
 /* Redwine: The killspam function was not working properly as some blocks of code were skipped. The best solution was to move the skipped code to a separate function that is called from killspam() and returns the value. This resulted in accurately recalculating the comments for every link the spammer commented on and also adjusting the votes count */
@@ -376,7 +376,7 @@ require_once(mnminclude.'votes.php');
 			$db->query("DELETE FROM `" . table_comments . "` WHERE `comment_user_id` =$id");
 			foreach ($results as $result)
 			{
-			
+
 			$link = new Link;
 			$link->id=$result->vote_link_id;
 			$link->read();
@@ -453,9 +453,9 @@ function killspam($id)
 	{
 		if (is_writable($filename)) {
 		   if ($handle = fopen($filename, 'w')) {
-		   	fwrite($handle,join("\n",$lines)); 
+		   	fwrite($handle,join("\n",$lines));
 			fclose($handle);
-		   } 
+		   }
 		}
 	}
 /* Redwine: the query was not working because of $db->query($sql='UPDATE. the $sql= inside the the query construction was breaking it */
@@ -465,7 +465,7 @@ function killspam($id)
 /* Redwine: the query was wrong and referencing the firen_id instead of friend_from and friend_to */
 	$db->query('DELETE FROM `' . table_friends . "` WHERE `friend_from` = $id OR `friend_to` = $id");
 	$db->query('DELETE FROM `' . table_messages . "` WHERE `sender`=$id OR `receiver`=$id");
-}		
+}
 
 function canIChangeUser($user_level) {
     // Don't let admins delete other admins and moderators
@@ -474,6 +474,6 @@ function canIChangeUser($user_level) {
     if (($user_level == 'admin' || $user_level == 'moderator') && !$amIadmin) {
         echo "Access denied";
         die;
-    } 
-}	
+    }
+}
 ?>

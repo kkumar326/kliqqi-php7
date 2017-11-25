@@ -4,7 +4,7 @@ ini_set('include_path', '.');
 
 define('LOG_FILE','logs/error.log'); // Used by the Admin Panel error log file viewer
 
-error_reporting(E_ALL); // Define the types of errors that will be reported to the error log
+error_reporting(E_ALL ^ E_NOTICE); // Define the types of errors that will be reported to the error log
 ini_set('display_errors','Off'); // Off = Don't print errors to the browser
 ini_set('error_log','logs/error.log'); // Error log file location
 
