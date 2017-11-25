@@ -4,7 +4,7 @@ ini_set('include_path', '.');
 
 define('LOG_FILE','logs/error.log'); // Used by the Admin Panel error log file viewer
 
-error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING); // Define the types of errors that will be reported to the error log
+error_reporting(E_ALL); // Define the types of errors that will be reported to the error log
 ini_set('display_errors','Off'); // Off = Don't print errors to the browser
 ini_set('error_log','logs/error.log'); // Error log file location
 
@@ -36,7 +36,7 @@ if ($main_smarty)
     $get = array();
     foreach ($_GET as $k => $v)
 	$get[$k] = stripslashes(htmlentities(strip_tags($v),ENT_QUOTES,'UTF-8'));
-	if (isset($get['return'])) { 
+	if (isset($get['return'])) {
 		$get['return'] = addslashes($get['return']);
 	}
     $main_smarty->assign('get',$get);

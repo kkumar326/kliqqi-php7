@@ -1,6 +1,6 @@
 <?php
 $my_base_url = 'http://localhost';
-$my_kliqqi_base = '';
+$my_kliqqi_base = '/kliqqi';
 $dblang = 'en';
 define('table_prefix', 'kliqqi_');
 $language = 'english';
